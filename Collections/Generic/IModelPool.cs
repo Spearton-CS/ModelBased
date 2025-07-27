@@ -360,11 +360,10 @@
         /// <summary>
         /// Enumerates <typeparamref name="TID"/>s of active <typeparamref name="TModel"/>s async.
         /// Excluding shadow.
-        /// Can be canceled.
         /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
         /// </summary>
         /// <returns></returns>
-        IAsyncEnumerable<TID> EnumerateIDsAsync(CancellationToken token = default);
+        IAsyncEnumerable<TID> EnumerateIDsAsync();
         /// <summary>
         /// Enumerates active <typeparamref name="TModel"/>s.
         /// Excluding shadow.
@@ -378,7 +377,7 @@
         /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
         /// </summary>
         /// <returns></returns>
-        IAsyncEnumerable<TModel> AsAsyncEnumerable(CancellationToken token = default);
+        IAsyncEnumerable<TModel> AsAsyncEnumerable();
 
         #endregion
     }

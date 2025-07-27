@@ -31,7 +31,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Adds <paramref name="model"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="refs">Count of refs to <paramref name="model"/>. Must be more than 0</param>
@@ -41,7 +40,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Adds <paramref name="model"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="refs">Count of refs to <paramref name="model"/>. Must be more than 0</param>
@@ -51,7 +49,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Adds <paramref name="model"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="refs">Count of refs to <paramref name="model"/>. Must be more than 0</param>
@@ -61,7 +58,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="refs">Count of refs to <paramref name="models"/>. Must be more than 0</param>
@@ -70,7 +66,6 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<int> AddManyAsync(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default);
         /// <summary>
         /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="refs">Count of refs to <paramref name="models"/>. Must be more than 0</param>
@@ -80,7 +75,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Adds <paramref name="model"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="refs">Count of refs to <paramref name="model"/>. Must be more than 0</param>
@@ -89,7 +83,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="refs">Count of refs to <paramref name="models"/>. Must be more than 0</param>
@@ -97,7 +90,6 @@ namespace ModelBased.Collections.Generic
         Task AddManyIgnoreAsync(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default);
         /// <summary>
         /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="refs">Count of refs to <paramref name="models"/>. Must be more than 0</param>
@@ -108,7 +100,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove model with <paramref name="id"/> from this <see cref="IPoolActiveStack{TModel, TID}"/>.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -117,7 +108,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="model"/> from this <see cref="IPoolActiveStack{TModel, TID}"/>.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -127,7 +117,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove model with <paramref name="id"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -136,7 +125,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="model"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -146,7 +134,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove models with <paramref name="ids"/> from this <see cref="IPoolActiveStack{TModel, TID}"/>.
         /// Removes with any refs count.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -155,7 +145,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="models"/> from this <see cref="IPoolActiveStack{TModel, TID}"/>.
         /// Removes with any refs count.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -165,7 +157,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove models with <paramref name="ids"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -174,7 +168,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="models"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -183,7 +179,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove models with <paramref name="ids"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -192,7 +190,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="models"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -202,7 +202,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove models with <paramref name="ids"/> from this <see cref="IPoolActiveStack{TModel, TID}"/>.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -210,7 +209,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="models"/> from this <see cref="IPoolActiveStack{TModel, TID}"/>.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -219,7 +217,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove models with <paramref name="ids"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -227,7 +224,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="models"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -235,7 +231,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove models with <paramref name="ids"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -243,7 +238,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to remove <paramref name="models"/> from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
         /// Removes with any refs count.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -255,7 +249,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to ref model with <paramref name="id"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -263,7 +256,6 @@ namespace ModelBased.Collections.Generic
         (int Refs, TModel? Model) TryRef(TID id, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="model"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -272,7 +264,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to ref model with <paramref name="id"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -280,7 +271,6 @@ namespace ModelBased.Collections.Generic
         Task<(int Refs, TModel? Model)> TryRefAsync(TID id, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="model"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -289,7 +279,9 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to ref models with <paramref name="ids"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -297,7 +289,9 @@ namespace ModelBased.Collections.Generic
         IEnumerable<(int Refs, TModel? Model)> TryRefMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="models"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -306,7 +300,9 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to ref models with <paramref name="ids"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -314,7 +310,9 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="models"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -322,7 +320,9 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, CancellationToken token = default);
         /// <summary>
         /// Tries to ref models with <paramref name="ids"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -330,7 +330,9 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="models"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -339,14 +341,12 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to ref models with <paramref name="ids"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         void TryRefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="models"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -354,28 +354,24 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to ref models with <paramref name="ids"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         Task TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="models"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
         Task TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
         /// <summary>
         /// Tries to ref models with <paramref name="ids"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         Task TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to ref <paramref name="models"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -383,7 +379,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref model with <paramref name="id"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -391,7 +386,6 @@ namespace ModelBased.Collections.Generic
         (int Refs, TModel? Model) TryUnref(TID id, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="model"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -400,7 +394,6 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref model with <paramref name="id"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -408,7 +401,6 @@ namespace ModelBased.Collections.Generic
         Task<(int Refs, TModel? Model)> TryUnrefAsync(TID id, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="model"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -417,7 +409,9 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -425,7 +419,9 @@ namespace ModelBased.Collections.Generic
         IEnumerable<(int Refs, TModel? Model)> TryUnrefMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -434,7 +430,9 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -442,7 +440,9 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -451,7 +451,9 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -459,7 +461,9 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -468,14 +472,12 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         void TryUnrefIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -483,14 +485,12 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         Task TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -498,14 +498,12 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -518,7 +516,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref model with <paramref name="id"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -530,7 +527,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="model"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -540,7 +536,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref model with <paramref name="id"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -552,7 +547,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="model"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -562,7 +556,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -574,7 +570,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="models"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -584,7 +582,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -596,7 +596,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="models"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -605,7 +607,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -617,7 +621,9 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="models"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -627,7 +633,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -635,7 +640,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="models"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -644,7 +648,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -652,7 +655,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="models"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -660,7 +662,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -668,7 +669,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Tries to unref <paramref name="models"/>,
         /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
@@ -678,7 +678,51 @@ namespace ModelBased.Collections.Generic
 
         #region Searching
 
+        /// <summary>
+        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        bool Contains(TID id, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        Task<bool> ContainsAsync(TID id, CancellationToken token = default);
 
+        /// <summary>
+        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         #endregion
 
@@ -687,7 +731,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Clears empty blocks.
         /// Blocks called empty when all items isn't initialized.
-        /// Can be canceled
         /// </summary>
         /// <returns></returns>
         int ClearEmpty(CancellationToken token = default);
@@ -695,7 +738,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Clears empty blocks async.
         /// Blocks called empty when all items isn't initialized.
-        /// Can be canceled
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>

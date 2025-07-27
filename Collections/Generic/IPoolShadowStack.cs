@@ -31,6 +31,8 @@ namespace ModelBased.Collections.Generic
         where TID : notnull
         where TModel : notnull, IDataModel<TID>
     {
+        #region Counts
+
         /// <summary>
         /// Count of <typeparamref name="TModel"/>, which can be stored in this <see cref="IPoolShadowStack{TModel, TID}"/>
         /// </summary>
@@ -39,6 +41,10 @@ namespace ModelBased.Collections.Generic
         /// Count of <typeparamref name="TModel"/>, which stored in this <see cref="IPoolShadowStack{TModel, TID}"/>
         /// </summary>
         int Count { get; }
+
+        #endregion
+
+        #region Push
 
         /// <summary>
         /// Adding new <paramref name="model"/>.
@@ -51,7 +57,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Adding new <paramref name="model"/> async.
         /// If overflow - it will replace oldest one.
-        /// Can be canceled
         /// </summary>
         /// <param name="model">Not null model</param>
         /// <param name="token"></param>
@@ -68,7 +73,6 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Adding new <paramref name="models"/> async.
         /// If overflow - it will replace oldest one.
-        /// Can be canceled
         /// </summary>
         /// <param name="models">Not null model</param>
         /// <param name="token"></param>
@@ -76,15 +80,17 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Adding new <paramref name="models"/> async.
         /// If overflow - it will replace oldest one.
-        /// Can be canceled
         /// </summary>
         /// <param name="models">Not null model</param>
         /// <param name="token"></param>
         Task PushManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
 
+        #endregion
+
+        #region Pop
+
         /// <summary>
         /// Pops <typeparamref name="TModel"/> with <paramref name="id"/>.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -92,7 +98,6 @@ namespace ModelBased.Collections.Generic
         TModel? Pop(TID id, CancellationToken token = default);
         /// <summary>
         /// Pops <typeparamref name="TModel"/> with <paramref name="id"/> async.
-        /// Can be canceled
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -101,7 +106,9 @@ namespace ModelBased.Collections.Generic
 
         /// <summary>
         /// Pops <typeparamref name="TModel"/>s with <paramref name="ids"/>.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
@@ -109,27 +116,83 @@ namespace ModelBased.Collections.Generic
         IEnumerable<TModel?> PopMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Pops <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
-        /// Can be canceled
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
         IAsyncEnumerable<TModel?> PopManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
 
+        #endregion
+
+        #region Clear
+
         /// <summary>
         /// Cleans all stored <typeparamref name="TModel"/> and returns count of cleaned models
-        /// Can be canceled.
         /// </summary>
         /// <param name="token"></param>
         /// <returns>Count of cleaned models</returns>
         int Clear(CancellationToken token = default);
         /// <summary>
         /// Cleans all stored <typeparamref name="TModel"/> and returns count of cleaned models async
-        /// Can be canceled.
         /// </summary>
         /// <param name="token"></param>
         /// <returns>Count of cleaned models</returns>
         Task<int> ClearAsync(CancellationToken token = default);
+
+        #endregion
+
+        #region Searching
+
+        /// <summary>
+        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        bool Contains(TID id, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        Task<bool> ContainsAsync(TID id, CancellationToken token = default);
+
+        /// <summary>
+        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
+
+        #endregion
 
         /// <summary>
         /// Copies <typeparamref name="TModel"/>s from this <see cref="IPoolShadowStack{TModel, TID}"/> to <typeparamref name="TModel"/> array.
@@ -162,13 +225,13 @@ namespace ModelBased.Collections.Generic
     {
         public static IPoolShadowStack<TModel, TID> Create<TModel, TID>()
             where TID : notnull
-            where TModel : notnull, Data.IDataModelContract<TID>
+            where TModel : notnull, IDataModel<TID>
         {
             return PoolShadowStack<TModel, TID>.Empty;
         }
         public static IPoolShadowStack<TModel, TID> Create<TModel, TID>(ReadOnlySpan<TModel> models)
             where TID : notnull
-            where TModel : notnull, Data.IDataModelContract<TID>
+            where TModel : notnull, IDataModel<TID>
         {
             if (models.Length == 0)
                 return PoolShadowStack<TModel, TID>.Empty;
