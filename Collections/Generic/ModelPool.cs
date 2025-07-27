@@ -4,7 +4,7 @@
 
     public class ModelPool<TModel, TID> : IModelPool<ModelPool<TModel, TID>, TModel, TID>
         where TID : notnull
-        where TModel : IDataModelContract<TModel, TID>
+        where TModel : IDataModel<TModel, TID>
     {
         protected LinkedList<(TModel Model, int Refs)> models = [];
         protected IPoolShadowStack<TModel, TID> shadowModels;

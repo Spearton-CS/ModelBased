@@ -13,7 +13,7 @@ namespace ModelBased.Collections.Generic
     [DebuggerDisplay("Capacity = {Capacity}")]
     public class PoolShadowStack<TModel, TID> : IPoolShadowStack<PoolShadowStack<TModel, TID>, TModel, TID>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TID>
+        where TModel : notnull, IDataModel<TID>
     {
         /// <summary>
         /// Array of <typeparamref name="TModel"/>, which have Age ('Old' item). This an index, which increases at each <see cref="models"/> modification

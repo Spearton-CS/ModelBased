@@ -12,6 +12,8 @@
     <Company>Spearton</Company>
     <Description>Small library which provides apportunity to easy-manage thousands of Models through reference-based system with Pool.
 That library uses less memory than default .NET collections</Description>
+    <RepositoryUrl>https://github.com/Spearton-CS/ModelBased</RepositoryUrl>
+    <PackageTags>model;data;pool;csharp;c#;manage;datamodel;crossplatform;windows;linux;mac;</PackageTags>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

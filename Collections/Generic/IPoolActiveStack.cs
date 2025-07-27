@@ -12,7 +12,7 @@ namespace ModelBased.Collections.Generic
     [CollectionBuilder(typeof(PoolActiveStackBuilder), "Create")]
     public interface IPoolActiveStack<TModel, TID> : IEnumerable<TModel>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TID>
+        where TModel : notnull, IDataModel<TID>
     {
         #region Stats
 
@@ -717,13 +717,13 @@ namespace ModelBased.Collections.Generic
     {
         public static IPoolActiveStack<TModel, TID> Create<TModel, TID>()
             where TID : notnull
-            where TModel : notnull, IDataModelContract<TID>
+            where TModel : notnull, IDataModel<TID>
         {
             return new PoolActiveStack<TModel, TID>();
         }
         public static IPoolActiveStack<TModel, TID> Create<TModel, TID>(ReadOnlySpan<TModel> models)
                     where TID : notnull
-                    where TModel : notnull, IDataModelContract<TID>
+                    where TModel : notnull, IDataModel<TID>
         {
             PoolActiveStack<TModel, TID> collection = [];
             foreach (TModel model in models)

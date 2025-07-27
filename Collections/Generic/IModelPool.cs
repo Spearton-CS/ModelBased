@@ -9,7 +9,7 @@
     /// <typeparam name="TID"></typeparam>
     public interface IModelPool<TModel, TID>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TModel, TID> //Exactly TModel, TID, bc we need Factory
+        where TModel : notnull, IDataModel<TModel, TID> //Exactly TModel, TID, bc we need Factory
     {
         #region Rent/Return
 
@@ -18,8 +18,9 @@
         /// </summary>
         /// <param name="id"></param>
         /// <param name="model"></param>
+        /// <param name="token"></param>
         /// <returns>True, if <paramref name="model"/> is not null (default)</returns>
-        bool TryRent(TID id, out TModel? model);
+        bool TryRent(TID id, out TModel? model, CancellationToken token = default);
         /// <summary>
         /// Tries to rent <typeparamref name="TModel"/> async with <paramref name="id"/>. Can be canceled
         /// </summary>
@@ -51,14 +52,15 @@
         IAsyncEnumerable<(bool Success, TModel? Result)> TryRentManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
-        /// Rents <typeparamref name="TModel"/> with <paramref name="id"/>. If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModelContract{TSelf, TID}.Factory(TID)"/>
+        /// Rents <typeparamref name="TModel"/> with <paramref name="id"/>. If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        TModel Rent(TID id);
+        TModel Rent(TID id, CancellationToken token = default);
         /// <summary>
         /// Rents <typeparamref name="TModel"/> with <paramref name="id"/> async.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModelContract{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
         /// It can be canceled
         /// </summary>
         /// <param name="id"></param>
@@ -68,7 +70,7 @@
 
         /// <summary>
         /// Rents many <typeparamref name="TModel"/>s with <paramref name="ids"/>.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModelContract{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
         /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
@@ -77,7 +79,7 @@
         IEnumerable<TModel> RentMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Rents many <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModelContract{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
         /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
@@ -86,7 +88,7 @@
         IAsyncEnumerable<TModel> RentManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Rents many <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModelContract{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
         /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
@@ -98,8 +100,9 @@
         /// Returns <paramref name="model"/>
         /// </summary>
         /// <param name="model"></param>
+        /// <param name="token"></param>
         /// <returns>True, if returned</returns>
-        bool Return(TModel model);
+        bool Return(TModel model, CancellationToken token = default);
         /// <summary>
         /// Returns <paramref name="model"/> async. Can be canceled
         /// </summary>
@@ -129,6 +132,29 @@
         /// <param name="token"></param>
         /// <returns>True, if returned</returns>
         IAsyncEnumerable<bool> ReturnManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+
+        /// <summary>
+        /// Returns <paramref name="models"/>. Can be canceled
+        /// </summary>
+        /// <param name="models"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if returned</returns>
+        bool ReturnManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
+        /// <summary>
+        /// Returns <paramref name="models"/> async. Can be canceled
+        /// </summary>
+        /// <param name="models"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if returned</returns>
+        Task<bool> ReturnManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
+        /// <summary>
+        /// Returns <paramref name="models"/> async. Can be canceled
+        /// </summary>
+        /// <param name="models"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if returned</returns>
+        Task<bool> ReturnManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+
 
         #endregion
 
@@ -170,8 +196,9 @@
         /// Clears <see cref="IPoolShadowStack{TModel, TID}"/>
         /// </summary>
         /// <param name="minOld">Minimal old of shadow model (its not time, its count of modification of shadow stack after that model)</param>
+        /// <param name="token"></param>
         /// <returns>Count of cleaned shadow models (0-ref)</returns>
-        int ClearShadow(int minOld = -1);
+        int ClearShadow(int minOld = -1, CancellationToken token = default);
         /// <summary>
         /// Clears <see cref="IPoolShadowStack{TModel, TID}"/>. Can be canceled
         /// </summary>
@@ -198,8 +225,9 @@
         /// Excluding shadow models
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="token"></param>
         /// <returns>True, if rented</returns>
-        bool IsRented(TID id);
+        bool IsRented(TID id, CancellationToken token = default);
         /// <summary>
         /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent(TID)"/>).
         /// Excluding shadow models.
@@ -215,8 +243,9 @@
         /// Excluding shadow models
         /// </summary>
         /// <param name="ids"></param>
+        /// <param name="token"></param>
         /// <returns>True, if rented</returns>
-        IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids);
+        IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
         /// Excluding shadow models.
@@ -241,8 +270,9 @@
         /// Including shadow models
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="token"></param>
         /// <returns>True, if contains</returns>
-        bool Contains(TID id);
+        bool Contains(TID id, CancellationToken token = default);
         /// <summary>
         /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent(TID)"/>).
         /// Including shadow models.
@@ -301,8 +331,9 @@
         /// <param name="array"></param>
         /// <param name="index">Start index in <paramref name="array"/></param>
         /// <param name="count"></param>
+        /// <param name="token"></param>
         /// <returns>Count of copied items</returns>
-        int ToArray(TModel[] array, int index = 0, int count = -1);
+        int ToArray(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
         /// <summary>
         /// Copies active models to <paramref name="array"/> into index <paramref name="index"/> up to <paramref name="count"/> async.
         /// Excluding shadow models.
@@ -361,7 +392,7 @@
     /// <typeparam name="TID"></typeparam>
     public interface IModelPool<TSelf, TModel, TID> : IModelPool<TModel, TID>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TModel, TID>
+        where TModel : notnull, IDataModel<TModel, TID>
         where TSelf : notnull, IModelPool<TSelf, TModel, TID>
     {
         /// <summary>

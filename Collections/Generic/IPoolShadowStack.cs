@@ -12,7 +12,7 @@ namespace ModelBased.Collections.Generic
     /// </summary>
     public interface IPoolShadowStack<TSelf, TModel, TID> : IPoolShadowStack<TModel, TID>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TID>
+        where TModel : notnull, IDataModel<TID>
         where TSelf : notnull, IPoolShadowStack<TSelf, TModel, TID>
     {
         /// <summary>
@@ -29,7 +29,7 @@ namespace ModelBased.Collections.Generic
     [CollectionBuilder(typeof(PoolShadowStackBuilder), "Create")]
     public interface IPoolShadowStack<TModel, TID> : IEnumerable<TModel>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TID>
+        where TModel : notnull, IDataModel<TID>
     {
         /// <summary>
         /// Count of <typeparamref name="TModel"/>, which can be stored in this <see cref="IPoolShadowStack{TModel, TID}"/>

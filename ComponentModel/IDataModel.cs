@@ -5,12 +5,12 @@
     /// </summary>
     /// <typeparam name="TSelf"></typeparam>
     /// <typeparam name="TID">ID for this Model type</typeparam>
-    public interface IDataModelContract<TSelf, TID> : IDataModelContract<TID>
+    public interface IDataModel<TSelf, TID> : IDataModel<TID>
         where TID : notnull
-        where TSelf : notnull, IDataModelContract<TSelf, TID>
+        where TSelf : notnull, IDataModel<TSelf, TID>
     {
         /// <summary>
-        /// Static factory-function. As default used by <see cref="ModelPool{TModel, TID}"/>
+        /// Static factory-function. As default used by <see cref="Collections.Generic.IModelPool{TModel, TID}"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -20,11 +20,11 @@
     /// Contract for DataModel.
     /// </summary>
     /// <typeparam name="TID">ID for this Model type</typeparam>
-    public interface IDataModelContract<TID>
+    public interface IDataModel<TID>
         where TID : notnull
     {
         /// <summary>
-        /// <typeparamref name="TID"/>, which unique between type-equal <see cref="IDataModelContract{TSelf, TID}"/> (e.g: Tracks with ID 0 and with ID 1)
+        /// <typeparamref name="TID"/>, which unique between type-equal <see cref="IDataModel{TSelf, TID}"/> (e.g: Tracks with ID 0 and with ID 1)
         /// </summary>
         TID ID { get; }
 

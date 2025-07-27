@@ -11,9 +11,10 @@ namespace ModelBased.Collections.Generic
     /// <typeparam name="TID"></typeparam>
     public class PoolActiveStack<TModel, TID> : IPoolActiveStack<TModel, TID>
         where TID : notnull
-        where TModel : notnull, IDataModelContract<TID>
+        where TModel : notnull, IDataModel<TID>
     {
         protected volatile int capacity = 0, count = 0;
+        protected long version = 0;
 
         protected Item firstItem; //Always must be non-null
         protected SemaphoreSlim semaphore = new(1, 1);
