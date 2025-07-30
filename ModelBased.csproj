@@ -25,7 +25,21 @@ That library uses less memory than default .NET collections</Description>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Tester\**" />
+    <EmbeddedResource Remove="Tester\**" />
+    <None Remove="Tester\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="Collections\Generic\PoolShadowStack - Copy.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Properties\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Collections\Generic\PoolShadowStack - Copy.cs" />
   </ItemGroup>
 
 </Project>

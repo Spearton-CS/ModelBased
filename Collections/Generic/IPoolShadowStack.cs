@@ -27,7 +27,7 @@ namespace ModelBased.Collections.Generic
     /// Its possible to "return" items from this stack.
     /// </summary>
     [CollectionBuilder(typeof(PoolShadowStackBuilder), "Create")]
-    public interface IPoolShadowStack<TModel, TID> : IEnumerable<TModel>
+    public interface IPoolShadowStack<TModel, TID> : IEnumerable<TModel>, IAsyncEnumerable<TModel>
         where TID : notnull
         where TModel : notnull, IDataModel<TID>
     {
