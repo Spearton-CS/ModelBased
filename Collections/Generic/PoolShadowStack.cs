@@ -5,6 +5,7 @@ namespace ModelBased.Collections.Generic
 {
     using ModelBased.ComponentModel;
     using System.Reflection;
+    using System.Runtime.CompilerServices;
     using System.Threading.Tasks;
 
     /// <summary>
@@ -214,6 +215,7 @@ namespace ModelBased.Collections.Generic
             ArgumentNullException.ThrowIfNull(models, nameof(models));
             if (this.models is not null && this.models.Length > 0)
             {
+                token.ThrowIfCancellationRequested();
                 semaphore.Wait(token);
                 try
                 {
@@ -267,15 +269,121 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public Task PushManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public async Task PushManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(models, nameof(models));
+            if (this.models is not null && this.models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    foreach (TModel model in models)
+                    {
+                        for (int i = 0; i < this.models.Length; i++)
+                            if (this.models[i].Old > -1 && model.EqualsByID(this.models[i].Model.ID)) //model is already exist, lets 'refresh' its old and make older others
+                            {
+                                for (int j = 0; j < this.models.Length; j++)
+                                    if (j != i && this.models[j].Old > -1) //All models, excluding model i
+                                        this.models[j].Old++; //We always must old up models in Push method if we modify sth
+                                this.models[i].Old = 0;
+                                Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                                return;
+                            }
+                        int freeIndex = -1, oldestIndex = -1, oldest = -1; //model isn't exist, that fields will help us, if no space in models - we will replace oldest.
+
+                        for (int i = 0; i < this.models.Length; i++) //Lets check all models. We need to try find free index, oldestIndex and oldest (item)
+                        {
+                            int old = this.models[i].Old; //Save as local, bc we use it 3+ times
+                            if (old > -1) //Its not empty index
+                            {
+                                this.models[i].Old++; //Add old BEFORE COMPARE with oldest, bc all models will old up when adding new one
+                                if (old > oldest) //This older than oldest
+                                {
+                                    oldest = old;
+                                    oldestIndex = i; //Set it, bc if no space in models - we will replace this by new one
+                                }
+                            }
+                            else if (freeIndex == -1) //Its empty index and freeIndex not set check
+                                freeIndex = i;
+                        }
+
+                        if (freeIndex != -1) //We dont need to replace oldest one
+                        {
+                            this.models[freeIndex] = (0, model);
+                            Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                        }
+                        else //We need to replace oldest one
+                        {
+                            this.models[oldestIndex] = (0, model);
+                            Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                        }
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public Task PushManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public async Task PushManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            ArgumentNullException.ThrowIfNull(models, nameof(models));
+            if (this.models is not null && this.models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    await foreach (TModel model in models)
+                    {
+                        for (int i = 0; i < this.models.Length; i++)
+                            if (this.models[i].Old > -1 && model.EqualsByID(this.models[i].Model.ID)) //model is already exist, lets 'refresh' its old and make older others
+                            {
+                                for (int j = 0; j < this.models.Length; j++)
+                                    if (j != i && this.models[j].Old > -1) //All models, excluding model i
+                                        this.models[j].Old++; //We always must old up models in Push method if we modify sth
+                                this.models[i].Old = 0;
+                                Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                                return;
+                            }
+                        int freeIndex = -1, oldestIndex = -1, oldest = -1; //model isn't exist, that fields will help us, if no space in models - we will replace oldest.
+
+                        for (int i = 0; i < this.models.Length; i++) //Lets check all models. We need to try find free index, oldestIndex and oldest (item)
+                        {
+                            int old = this.models[i].Old; //Save as local, bc we use it 3+ times
+                            if (old > -1) //Its not empty index
+                            {
+                                this.models[i].Old++; //Add old BEFORE COMPARE with oldest, bc all models will old up when adding new one
+                                if (old > oldest) //This older than oldest
+                                {
+                                    oldest = old;
+                                    oldestIndex = i; //Set it, bc if no space in models - we will replace this by new one
+                                }
+                            }
+                            else if (freeIndex == -1) //Its empty index and freeIndex not set check
+                                freeIndex = i;
+                        }
+
+                        if (freeIndex != -1) //We dont need to replace oldest one
+                        {
+                            this.models[freeIndex] = (0, model);
+                            Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                        }
+                        else //We need to replace oldest one
+                        {
+                            this.models[oldestIndex] = (0, model);
+                            Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                        }
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         #endregion
@@ -287,6 +395,7 @@ namespace ModelBased.Collections.Generic
         {
             if (models is not null && models.Length > 0)
             {
+                token.ThrowIfCancellationRequested();
                 semaphore.Wait(token);
                 try
                 {
@@ -323,21 +432,164 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public Task<TModel?> PopAsync(TID id, CancellationToken token = default)
+        public async Task<TModel?> PopAsync(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            if (models is not null && models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    for (int i = 0; i < models.Length; i++)
+                    {
+                        if (models[i].Old > -1 && models[i].Model.EqualsByID(id))
+                        {
+                            TModel model = models[i].Model;
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                            models[i] = (-1, default); //This index is cleaned now, we dont need replace oldest item by new
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                            /*
+                             * Default is OK, bc we always must check Old > -1 (at least 0, newest or older).
+                             * We dont mark Model as nullable bc its default (can be null) only if Old <= -1
+                             */
+
+                            for (int j = 0; j < models.Length; j++)
+                                if (j != i && models[j].Old > -1) //All models, excluding model i
+                                    models[j].Old++; //We always must old up models in Pop method if we modify sth
+
+                            Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                            return model; //We found the model with id
+                        }
+                    }
+                    return default; //We didn't find the model with id
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+            else
+                return default;
         }
 
         /// <inheritdoc/>
         public IEnumerable<TModel?> PopMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            if (models is not null && models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                semaphore.Wait(token);
+                try
+                {
+                    foreach (TID id in ids)
+                        for (int i = 0; i < models.Length; i++)
+                        {
+                            if (models[i].Old > -1 && models[i].Model.EqualsByID(id))
+                            {
+                                TModel model = models[i].Model;
+    #pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                                models[i] = (-1, default); //This index is cleaned now, we dont need replace oldest item by new
+    #pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                                /*
+                                 * Default is OK, bc we always must check Old > -1 (at least 0, newest or older).
+                                 * We dont mark Model as nullable bc its default (can be null) only if Old <= -1
+                                 */
+
+                                for (int j = 0; j < models.Length; j++)
+                                    if (j != i && models[j].Old > -1) //All models, excluding model i
+                                        models[j].Old++; //We always must old up models in Pop method if we modify sth
+
+                                Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                                yield return model; //We found the model with id
+                            }
+                        }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public IAsyncEnumerable<TModel?> PopManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public async IAsyncEnumerable<TModel?> PopManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            if (models is not null && models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    foreach (TID id in ids)
+                    {
+                        for (int i = 0; i < models.Length; i++)
+                        {
+                            if (models[i].Old > -1 && models[i].Model.EqualsByID(id))
+                            {
+                                TModel model = models[i].Model;
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                                models[i] = (-1, default); //This index is cleaned now, we dont need replace oldest item by new
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                                /*
+                                 * Default is OK, bc we always must check Old > -1 (at least 0, newest or older).
+                                 * We dont mark Model as nullable bc its default (can be null) only if Old <= -1
+                                 */
+
+                                for (int j = 0; j < models.Length; j++)
+                                    if (j != i && models[j].Old > -1) //All models, excluding model i
+                                        models[j].Old++; //We always must old up models in Pop method if we modify sth
+
+                                Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                                yield return model; //We found the model with id
+                            }
+                        }
+                        token.ThrowIfCancellationRequested();
+                    }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+        }
+
+        /// <inheritdoc/>
+        public async IAsyncEnumerable<TModel?> PopManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        {
+            if (models is not null && models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    await foreach (TID id in ids.WithCancellation(token))
+                        for (int i = 0; i < models.Length; i++)
+                        {
+                            if (models[i].Old > -1 && models[i].Model.EqualsByID(id))
+                            {
+                                TModel model = models[i].Model;
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+                                models[i] = (-1, default); //This index is cleaned now, we dont need replace oldest item by new
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                                /*
+                                 * Default is OK, bc we always must check Old > -1 (at least 0, newest or older).
+                                 * We dont mark Model as nullable bc its default (can be null) only if Old <= -1
+                                 */
+
+                                for (int j = 0; j < models.Length; j++)
+                                    if (j != i && models[j].Old > -1) //All models, excluding model i
+                                        models[j].Old++; //We always must old up models in Pop method if we modify sth
+
+                                Interlocked.Increment(ref version); //We modified models, increase for GetEnumerator validation
+                                yield return model; //We found the model with id
+                            }
+                        }
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         #endregion
