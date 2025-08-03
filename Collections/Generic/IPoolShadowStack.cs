@@ -27,7 +27,7 @@ namespace ModelBased.Collections.Generic
     /// Its possible to "return" items from this stack.
     /// </summary>
     [CollectionBuilder(typeof(PoolShadowStackBuilder), "Create")]
-    public interface IPoolShadowStack<TModel, TID> : IEnumerable<TModel>, IAsyncEnumerable<TModel>
+    public interface IPoolShadowStack<TModel, TID> : IReadOnlyCollection<TModel>, IAsyncEnumerable<TModel>
         where TID : notnull
         where TModel : notnull, IDataModel<TID>
     {
@@ -37,10 +37,6 @@ namespace ModelBased.Collections.Generic
         /// Count of <typeparamref name="TModel"/>, which can be stored in this <see cref="IPoolShadowStack{TModel, TID}"/>
         /// </summary>
         int Capacity { get; }
-        /// <summary>
-        /// Count of <typeparamref name="TModel"/>, which stored in this <see cref="IPoolShadowStack{TModel, TID}"/>
-        /// </summary>
-        int Count { get; }
 
         #endregion
 
