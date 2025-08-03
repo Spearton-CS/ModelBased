@@ -1,0 +1,3 @@
+It's a fast-test console app, which used BEFORE CREATING unit tests to check base things.
+
+It's not replace for UNIT-TESTS!

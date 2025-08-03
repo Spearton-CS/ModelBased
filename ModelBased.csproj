@@ -26,8 +26,11 @@ That library uses less memory than default .NET collections</Description>
 
   <ItemGroup>
     <Compile Remove="Tester\**" />
+    <Compile Remove="Tests\**" />
     <EmbeddedResource Remove="Tester\**" />
+    <EmbeddedResource Remove="Tests\**" />
     <None Remove="Tester\**" />
+    <None Remove="Tests\**" />
   </ItemGroup>
 
   <ItemGroup>
