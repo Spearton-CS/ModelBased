@@ -6,7 +6,7 @@ namespace MainTests;
 public class ActiveStackTest
 {
     [ClassInitialize]
-    public static void Prepare()
+    public static void Prepare(TestContext testContext)
     {
 
     }
