@@ -153,5 +153,175 @@ namespace MainTests
             }
             Debug.WriteLineIf(allEqual, "All equal");
         }
+
+        [TestMethod(), Priority(-4)]
+        public void _05OverflowSync()
+        {
+            Debug.WriteLine("Full by sync");
+            for (int i = 0; i < ids.Length; i++)
+                stack.Push(new()
+                {
+                    ID = i,
+                    Data = $"FULL_SYNC:{i}"
+                });
+
+            Debug.WriteLine("Check all by sync:");
+            bool allContains = true;
+            for (int i = 0; i < ids.Length; i++)
+                if (!stack.Contains(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Don't contains: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All contains");
+
+            Debug.WriteLine("Overflow by sync:");
+            int max = ids.Length * 2;
+            for (int i = ids.Length; i < max; i++)
+                stack.Push(new()
+                {
+                    ID = i,
+                    Data = $"FULL_SYNC:{i}"
+                });
+
+            Debug.WriteLine("Check on first by sync:");
+            allContains = true; //Use this variable, just remember that's 'allReplaced'
+            for (int i = 0; i < ids.Length; i++)
+                if (stack.Contains(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Contains first: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All replaced");
+
+            Debug.WriteLine("Check overflow by sync:");
+            allContains = true;
+            for (int i = ids.Length; i < max; i++)
+                if (!stack.Contains(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Don't contains: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All contains");
+        }
+
+        [TestMethod(), Priority(-5)]
+        public async Task _06OverflowAsync()
+        {
+            Debug.WriteLine("Full by async");
+            for (int i = 0; i < ids.Length; i++)
+                await stack.PushAsync(new()
+                {
+                    ID = i,
+                    Data = $"FULL_SYNC:{i}"
+                });
+
+            Debug.WriteLine("Check all by async:");
+            bool allContains = true;
+            for (int i = 0; i < ids.Length; i++)
+                if (!await stack.ContainsAsync(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Don't contains: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All contains");
+
+            Debug.WriteLine("Overflow by async:");
+            int max = ids.Length * 2;
+            for (int i = ids.Length; i < max; i++)
+                await stack.PushAsync(new()
+                {
+                    ID = i,
+                    Data = $"FULL_SYNC:{i}"
+                });
+
+            Debug.WriteLine("Check on first by async:");
+            allContains = true; //Use this variable, just remember that's 'allReplaced'
+            for (int i = 0; i < ids.Length; i++)
+                if (await stack.ContainsAsync(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Contains first: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All replaced");
+
+            Debug.WriteLine("Check overflow by async:");
+            allContains = true;
+            for (int i = ids.Length; i < max; i++)
+                if (!await stack.ContainsAsync(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Don't contains: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All contains");
+        }
+
+        [TestMethod(), Priority(-6)]
+        public void _07ClearSync()
+        {
+            Debug.WriteLine("Full by sync");
+            for (int i = 0; i < ids.Length; i++)
+                stack.Push(new()
+                {
+                    ID = i,
+                    Data = $"FULL_SYNC:{i}"
+                });
+
+            Debug.WriteLine("Check all by sync:");
+            bool allContains = true;
+            for (int i = 0; i < ids.Length; i++)
+                if (!stack.Contains(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Don't contains: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All contains");
+
+            Debug.WriteLine($"Clear by sync: {stack.Clear()}");
+
+            Debug.WriteLine("Check on cleaned by async:");
+            allContains = true; //Use this variable, just remember that's 'allCleaned'
+            for (int i = 0; i < ids.Length; i++)
+                if (stack.Contains(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Contains cleaned: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All cleaned");
+        }
+
+        [TestMethod(), Priority(-7)]
+        public async Task _08ClearAsync()
+        {
+            Debug.WriteLine("Full by sync");
+            for (int i = 0; i < ids.Length; i++)
+                await stack.PushAsync(new()
+                {
+                    ID = i,
+                    Data = $"FULL_SYNC:{i}"
+                });
+
+            Debug.WriteLine("Check all by sync:");
+            bool allContains = true;
+            for (int i = 0; i < ids.Length; i++)
+                if (!await stack.ContainsAsync(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Don't contains: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All contains");
+
+            Debug.WriteLine($"Clear by sync: {await stack.ClearAsync()}");
+
+            Debug.WriteLine("Check on cleaned by async:");
+            allContains = true; //Use this variable, just remember that's 'allCleaned'
+            for (int i = 0; i < ids.Length; i++)
+                if (await stack.ContainsAsync(i))
+                {
+                    allContains = false;
+                    Debug.WriteLine($"Contains cleaned: {i}");
+                }
+            Debug.WriteLineIf(allContains, "All cleaned");
+        }
     }
 }
