@@ -243,6 +243,301 @@ namespace ModelBased.Collections.Generic
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        public IEnumerable<int> AddMany(IEnumerable<TModel> model, int refs = 1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> AddManyAsync(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> AddManyAsync(IAsyncEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddManyIgnore(IEnumerable<TModel> model, int refs = 1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddManyIgnoreAsync(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task AddManyIgnoreAsync(IAsyncEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<(bool Success, TModel? Model)> RemoveMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<bool> RemoveMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(bool Success, TModel? Model)> RemoveManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<bool> RemoveManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(bool Success, TModel? Model)> RemoveManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<bool> RemoveManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task RemoveManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<(int Refs, TModel? Model)> TryRefMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<int> TryRefMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TryRefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TryRefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<(int Refs, TModel? Model)> TryUnrefMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<int> TryUnrefMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TryUnrefIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void TryUnrefIgnoreMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<int> UnrefOrRemoveMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> UnrefOrRemoveManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<int> UnrefOrRemoveManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnrefOrRemoveIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UnrefOrRemoveIgnoreMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UnrefOrRemoveManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UnrefOrRemoveManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UnrefOrRemoveManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task UnrefOrRemoveManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ContainsAsync(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
 
 

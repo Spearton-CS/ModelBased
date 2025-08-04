@@ -192,6 +192,71 @@
             throw new NotImplementedException();
         }
 
+        public bool TryRent(TID id, out TModel? model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public TModel Rent(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Return(TModel model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool ReturnManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ReturnManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<bool> ReturnManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int ClearShadow(int minOld = -1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsRented(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool Contains(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int ToArray(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<TID> EnumerateIDsAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAsyncEnumerable<TModel> AsAsyncEnumerable()
+        {
+            throw new NotImplementedException();
+        }
+
         #endregion
     }
 }
