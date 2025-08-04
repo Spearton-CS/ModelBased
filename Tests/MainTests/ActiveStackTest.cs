@@ -1,10 +1,19 @@
+using System.Diagnostics;
+
 namespace MainTests;
 
-[TestClass]
+[TestClass, DoNotParallelize]
 public class ActiveStackTest
 {
-    [TestMethod]
-    public void TestMethod1()
+    [ClassInitialize]
+    public static void Prepare()
     {
+
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        Debug.WriteLine("[TEST_CLEANUP]\r\n\r\n");
     }
 }
