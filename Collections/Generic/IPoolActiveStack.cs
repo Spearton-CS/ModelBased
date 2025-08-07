@@ -48,13 +48,13 @@ namespace ModelBased.Collections.Generic
         Task<int> AddAsync(TModel model, int refs = 1, CancellationToken token = default);
 
         /// <summary>
-        /// Adds <paramref name="model"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
+        /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="refs">Count of refs to <paramref name="model"/>. Must be more than 0</param>
+        /// <param name="models"></param>
+        /// <param name="refs">Count of refs to <paramref name="models"/>. Must be more than 0</param>
         /// <param name="token"></param>
         /// <returns>Count of refs</returns>
-        IEnumerable<int> AddMany(IEnumerable<TModel> model, int refs = 1, CancellationToken token = default);
+        IEnumerable<int> AddMany(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default);
 
         /// <summary>
         /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
@@ -74,12 +74,12 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<int> AddManyAsync(IAsyncEnumerable<TModel> models, int refs = 1, CancellationToken token = default);
 
         /// <summary>
-        /// Adds <paramref name="model"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
+        /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/>.
         /// </summary>
-        /// <param name="model"></param>
-        /// <param name="refs">Count of refs to <paramref name="model"/>. Must be more than 0</param>
+        /// <param name="models"></param>
+        /// <param name="refs">Count of refs to <paramref name="models"/>. Must be more than 0</param>
         /// <param name="token"></param>
-        void AddManyIgnore(IEnumerable<TModel> model, int refs = 1, CancellationToken token = default);
+        void AddManyIgnore(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default);
 
         /// <summary>
         /// Adds <paramref name="models"/> with <paramref name="refs"/> (default 1), if already exist - adding <paramref name="refs"/> async.
