@@ -1,10 +1,9 @@
 ﻿using System.Collections;
+using ModelBased.ComponentModel;
+using System.Runtime.CompilerServices;
 
 namespace ModelBased.Collections.Generic
 {
-    using ModelBased.ComponentModel;
-    using System.Runtime.CompilerServices;
-
     /// <summary>
     /// Pool of active items of <see cref="IModelPool{TModel, TID}"/>
     /// </summary>
@@ -40,6 +39,13 @@ namespace ModelBased.Collections.Generic
 
         #region Add
 
+        /// <summary>
+        /// Add or write operation
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="refs"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         protected virtual int AddCore(TModel model, int refs, CancellationToken token = default)
         {
             Item current = firstItem;
@@ -49,13 +55,13 @@ namespace ModelBased.Collections.Generic
             {
                 for (int i = 0; i < icap; i++)
                 {
-                    TModel? stackModel = current.Stack[i].Model;
-                    if (stackModel is not null)
+                    var (Refs, Model) = current.Stack[i];
+                    if (Model is not null)
                     {
-                        if (stackModel.EqualsByID(model.ID))
+                        if (Model.EqualsByID(model.ID))
                         {
                             IncrementVersion();
-                            return (current.Stack[i].Refs += refs); //We found 
+                            return current.Stack[i].Refs = Refs + refs; //We found 
                         }
                     }
                     else empty ??= (current.Stack, i);
@@ -87,6 +93,7 @@ namespace ModelBased.Collections.Generic
         /// <inheritdoc/>
         public virtual int Add(TModel model, int refs = 1, CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
             try
@@ -102,6 +109,7 @@ namespace ModelBased.Collections.Generic
         /// <inheritdoc/>
         public virtual async Task<int> AddAsync(TModel model, int refs = 1, CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
@@ -115,8 +123,9 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public IEnumerable<int> AddMany(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        public virtual IEnumerable<int> AddMany(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
             try
@@ -131,8 +140,9 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<int> AddManyAsync(IEnumerable<TModel> models, int refs = 1, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> AddManyAsync(IEnumerable<TModel> models, int refs = 1, [EnumeratorCancellation] CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
@@ -147,8 +157,9 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public async IAsyncEnumerable<int> AddManyAsync(IAsyncEnumerable<TModel> models, int refs = 1, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> AddManyAsync(IAsyncEnumerable<TModel> models, int refs = 1, [EnumeratorCancellation] CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
@@ -163,8 +174,9 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public void AddManyIgnore(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        public virtual void AddManyIgnore(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
             try
@@ -179,8 +191,9 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public async Task AddManyIgnoreAsync(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        public virtual async Task AddManyIgnoreAsync(IEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
@@ -195,8 +208,9 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public async Task AddManyIgnoreAsync(IAsyncEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
+        public virtual async Task AddManyIgnoreAsync(IAsyncEnumerable<TModel> models, int refs = 1, CancellationToken token = default)
         {
+            ArgumentOutOfRangeException.ThrowIfNegativeOrZero(refs, nameof(refs));
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
@@ -214,6 +228,12 @@ namespace ModelBased.Collections.Generic
 
         #region Remove
 
+        /// <summary>
+        /// Remove operation
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         protected virtual bool RemoveCore(TModel model, CancellationToken token = default)
         {
             Item current = firstItem;
@@ -241,6 +261,12 @@ namespace ModelBased.Collections.Generic
             }
         }
 
+        /// <summary>
+        /// Remove operation
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
         protected virtual (bool Success, TModel? Model) RemoveCore(TID id, CancellationToken token = default)
         {
             Item current = firstItem;
@@ -252,6 +278,7 @@ namespace ModelBased.Collections.Generic
                     TModel? model = current.Stack[i].Model;
                     if (model is not null && model.EqualsByID(id))
                     {
+                        Interlocked.Decrement(ref count);
                         IncrementVersion();
                         current.Stack[i] = (0, default);
                         return (true, model); //We found
@@ -523,334 +550,837 @@ namespace ModelBased.Collections.Generic
 
         #region Ref
 
+        /// <summary>
+        /// Write operation
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        protected virtual (int Refs, TModel? Model) TryRefCore(TID id, CancellationToken token = default)
+        {
+            Item current = firstItem;
+            int icap = ItemCapacity;
+            while (true)
+            {
+                for (int i = 0; i < icap; i++)
+                {
+                    TModel? stackModel = current.Stack[i].Model;
+                    if (stackModel is not null && stackModel.EqualsByID(id))
+                    {
+                        IncrementVersion();
+                        current.Stack[i].Refs++;
+                        return current.Stack[i]; //We found 
+                    }
+                }
+                if (current.NextItem is not null)
+                {
+                    current = current.NextItem; //Search in next Item
+                    token.ThrowIfCancellationRequested();
+                }
+                else
+                    return (-1, default);
+            }
+        }
+
+        /// <summary>
+        /// Write operation
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        protected virtual int TryRefCore(TModel model, CancellationToken token = default)
+        {
+            Item current = firstItem;
+            int icap = ItemCapacity;
+            while (true)
+            {
+                for (int i = 0; i < icap; i++)
+                {
+                    TModel? stackModel = current.Stack[i].Model;
+                    if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                    {
+                        IncrementVersion();
+                        return ++current.Stack[i].Refs; //We found 
+                    }
+                }
+                if (current.NextItem is not null)
+                {
+                    current = current.NextItem; //Search in next Item
+                    token.ThrowIfCancellationRequested();
+                }
+                else
+                    return -1;
+            }
+        }
+
         /// <inheritdoc/>
         public virtual (int Refs, TModel? Model) TryRef(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                return TryRefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual int TryRef(TModel model, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                return TryRefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task<(int Refs, TModel? Model)> TryRefAsync(TID id, CancellationToken token = default)
+        public virtual async Task<(int Refs, TModel? Model)> TryRefAsync(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                return TryRefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task<int> TryRefAsync(TModel model, CancellationToken token = default)
+        public virtual async Task<int> TryRefAsync(TModel model, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                return TryRefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual IEnumerable<(int Refs, TModel? Model)> TryRefMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return TryRefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual IEnumerable<int> TryRefMany(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TModel model in models)
+                    yield return TryRefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return TryRefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TModel model in models)
+                    yield return TryRefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<(int Refs, TModel? Model)> TryRefManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TID id in ids.WithCancellation(token))
+                    yield return TryRefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TModel model in models.WithCancellation(token))
+                    yield return TryRefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual void TryRefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TID id in ids)
+                    TryRefCore(id, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual void TryRefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TModel model in models)
+                    TryRefCore(model, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TID id in ids)
+                    TryRefCore(id, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async Task TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TModel model in models)
+                    TryRefCore(model, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TID id in ids)
+                    TryRefCore(id, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async Task TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TModel model in models)
+                    TryRefCore(model, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         #endregion
 
         #region Unref
 
+        /// <summary>
+        /// Write or remove operation
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        protected virtual (int Refs, TModel? Model) TryUnrefCore(TID id, CancellationToken token = default)
+        {
+            Item current = firstItem;
+            int icap = ItemCapacity;
+            while (true)
+            {
+                for (int i = 0; i < icap; i++)
+                {
+                    TModel? stackModel = current.Stack[i].Model;
+                    if (stackModel is not null && stackModel.EqualsByID(id))
+                    {
+                        IncrementVersion();
+                        if (--current.Stack[i].Refs > 0) //We found 
+                            return current.Stack[i];
+                        else
+                        {
+                            Interlocked.Decrement(ref count);
+                            return current.Stack[i] = (-1, default); //Removed
+                        }
+                    }
+                }
+                if (current.NextItem is not null)
+                {
+                    current = current.NextItem; //Search in next Item
+                    token.ThrowIfCancellationRequested();
+                }
+                else
+                    return (-1, default);
+            }
+        }
+
+        /// <summary>
+        /// Write or remove operation
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        protected virtual int TryUnrefCore(TModel model, CancellationToken token = default)
+        {
+            Item current = firstItem;
+            int icap = ItemCapacity;
+            while (true)
+            {
+                for (int i = 0; i < icap; i++)
+                {
+                    TModel? stackModel = current.Stack[i].Model;
+                    if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                    {
+                        IncrementVersion();
+                        int refs = --current.Stack[i].Refs;
+                        if (refs == 0)
+                        {
+                            Interlocked.Decrement(ref count);
+                            current.Stack[i] = (-1, default); //Removed
+                        }
+                        return refs; //We found 
+                    }
+                }
+                if (current.NextItem is not null)
+                {
+                    current = current.NextItem; //Search in next Item
+                    token.ThrowIfCancellationRequested();
+                }
+                else
+                    return -1;
+            }
+        }
+
         /// <inheritdoc/>
         public virtual (int Refs, TModel? Model) TryUnref(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                return TryUnrefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual int TryUnref(TModel model, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                return TryUnrefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task<(int Refs, TModel? Model)> TryUnrefAsync(TID id, CancellationToken token = default)
+        public virtual async Task<(int Refs, TModel? Model)> TryUnrefAsync(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                return TryUnrefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task<int> TryUnrefAsync(TModel model, CancellationToken token = default)
+        public virtual async Task<int> TryUnrefAsync(TModel model, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                return TryUnrefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual IEnumerable<(int Refs, TModel? Model)> TryUnrefMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return TryUnrefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual IEnumerable<int> TryUnrefMany(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TModel model in models)
+                    yield return TryUnrefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return TryUnrefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> models, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TModel model in models)
+                    yield return TryUnrefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<(int Refs, TModel? Model)> TryUnrefManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TID id in ids.WithCancellation(token))
+                    yield return TryUnrefCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> models, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TModel model in models.WithCancellation(token))
+                    yield return TryUnrefCore(model, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual void TryUnrefIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual void TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TID id in ids)
+                    TryUnrefCore(id, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual void TryUnrefIgnoreMany(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual void TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TModel model in models)
+                    TryUnrefCore(model, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TID id in ids)
+                    TryUnrefCore(id, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async Task TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TModel model in models)
+                    TryUnrefCore(model, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TID id in ids)
+                    TryUnrefCore(id, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
-        }
-
-        #endregion
-
-        #region Unref or remove
-
-        /// <inheritdoc/>
-        public virtual (int Refs, TModel? Model) UnrefOrRemove(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual int UnrefOrRemove(TModel model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual Task<(int Refs, TModel? Model)> UnrefOrRemoveAsync(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual Task<int> UnrefOrRemoveAsync(TModel model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual IEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveMany(IEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual IEnumerable<int> UnrefOrRemoveMany(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual IAsyncEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual IAsyncEnumerable<int> UnrefOrRemoveManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual IAsyncEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual IAsyncEnumerable<int> UnrefOrRemoveManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual void UnrefOrRemoveIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual void UnrefOrRemoveIgnoreMany(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual Task UnrefOrRemoveManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual Task UnrefOrRemoveManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual Task UnrefOrRemoveManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <inheritdoc/>
-        public virtual Task UnrefOrRemoveManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TModel model in models)
+                    TryUnrefCore(model, default);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         #endregion
 
         #region Searching
 
-        /// <inheritdoc/>
-        public virtual bool Contains(TID id, CancellationToken token = default)
+        /// <summary>
+        /// Read-only operation.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        protected virtual int GetRefsCore(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            Item current = firstItem;
+            int icap = ItemCapacity;
+            while (true)
+            {
+                for (int i = 0; i < icap; i++)
+                {
+                    var (Refs, Model) = current.Stack[i];
+                    if (Model is not null && Model.EqualsByID(id))
+                        return Refs; //We found 
+                }
+                if (current.NextItem is not null)
+                {
+                    current = current.NextItem; //Search in next Item
+                    token.ThrowIfCancellationRequested();
+                }
+                else
+                    return -1;
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task<bool> ContainsAsync(TID id, CancellationToken token = default)
+        public virtual bool Contains(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                return GetRefsCore(id, token) > 0;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<bool> ContainsAsync(TID id, CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                return GetRefsCore(id, token) > 0;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return GetRefsCore(id, token) > 0;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return GetRefsCore(id, token) > 0;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TID id in ids.WithCancellation(token))
+                    yield return GetRefsCore(id, token) > 0;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual int GetRefs(TID id, CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                return GetRefsCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<int> GetRefsAsync(TID id, CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                return GetRefsCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual IEnumerable<int> GetRefsMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return GetRefsCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async IAsyncEnumerable<int> GetRefsManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                foreach (TID id in ids)
+                    yield return GetRefsCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async IAsyncEnumerable<int> GetRefsManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await foreach (TID id in ids.WithCancellation(token))
+                    yield return GetRefsCore(id, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         #endregion
@@ -860,7 +1390,46 @@ namespace ModelBased.Collections.Generic
         /// <inheritdoc/>
         public virtual int ClearEmpty(CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+
+            Item? previous = firstItem, current;
+            if (firstItem.NextItem is null) //We must never check first item for empty
+                return 0;
+            else
+                current = firstItem.NextItem;
+            int icap = ItemCapacity, removed = 0;
+            do
+            {
+                bool empty = true;
+                for (int i = 0; i < icap; i++)
+                    if (current.Stack[i].Refs > 0)
+                    {
+                        empty = false;
+                        break;
+                    }
+                if (empty)
+                {
+                    removed += icap;
+                    Item? next = current.NextItem;
+
+                    current.NextItem = null;
+                    if (current is IDisposable disposable)
+                        disposable.Dispose();
+                    else if (current is IAsyncDisposable adisposable)
+                        adisposable.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                    previous.NextItem = current = next;
+                    if (current is null)
+                        return removed;
+                }
+                else
+                {
+                    previous = current;
+                    current = current.NextItem;
+                }
+            }
+            while (current is not null);
+            return removed;
         }
 
         /// <inheritdoc/>

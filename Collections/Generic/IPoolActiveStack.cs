@@ -475,13 +475,13 @@ namespace ModelBased.Collections.Generic
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
-        void TryUnrefIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default);
+        void TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/>.
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        void TryUnrefIgnoreMany(IEnumerable<TModel> models, CancellationToken token = default);
+        void TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
@@ -508,171 +508,6 @@ namespace ModelBased.Collections.Generic
         /// <param name="models"></param>
         /// <param name="token"></param>
         Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-
-        #endregion
-
-        #region Unref/remove
-
-        /// <summary>
-        /// Tries to unref model with <paramref name="id"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns>
-        /// (Count of refs or 0 if remove) + Model
-        /// or -1 if not exist + default (null)
-        /// </returns>
-        (int Refs, TModel? Model) UnrefOrRemove(TID id, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="model"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of refs or 0 if remove or -1 if not exist</returns>
-        int UnrefOrRemove(TModel model, CancellationToken token = default);
-
-        /// <summary>
-        /// Tries to unref model with <paramref name="id"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns>
-        /// (Count of refs or 0 if remove) + Model
-        /// or -1 if not exist + default (null)
-        /// </returns>
-        Task<(int Refs, TModel? Model)> UnrefOrRemoveAsync(TID id, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="model"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of refs or 0 if remove or -1 if not exist</returns>
-        Task<int> UnrefOrRemoveAsync(TModel model, CancellationToken token = default);
-
-        /// <summary>
-        /// Tries to unref models with <paramref name="ids"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// You must enumerate all returns
-        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
-        /// to avoid dead-lock
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns>
-        /// (Count of refs or 0 if remove) + Model
-        /// or -1 if not exist + default (null)
-        /// </returns>
-        IEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveMany(IEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="models"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// You must enumerate all returns
-        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
-        /// to avoid dead-lock
-        /// </summary>
-        /// <param name="models"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of refs or 0 if remove or -1 if not exist</returns>
-        IEnumerable<int> UnrefOrRemoveMany(IEnumerable<TModel> models, CancellationToken token = default);
-
-        /// <summary>
-        /// Tries to unref models with <paramref name="ids"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// You must enumerate all returns
-        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
-        /// to avoid dead-lock
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns>
-        /// (Count of refs or 0 if remove) + Model
-        /// or -1 if not exist + default (null)
-        /// </returns>
-        IAsyncEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="models"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// You must enumerate all returns
-        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
-        /// to avoid dead-lock
-        /// </summary>
-        /// <param name="models"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of refs or 0 if remove or -1 if not exist</returns>
-        IAsyncEnumerable<int> UnrefOrRemoveManyAsync(IEnumerable<TModel> models, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref models with <paramref name="ids"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// You must enumerate all returns
-        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
-        /// to avoid dead-lock
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns>
-        /// (Count of refs or 0 if remove) + Model
-        /// or -1 if not exist + default (null)
-        /// </returns>
-        IAsyncEnumerable<(int Refs, TModel? Model)> UnrefOrRemoveManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="models"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// You must enumerate all returns
-        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
-        /// to avoid dead-lock
-        /// </summary>
-        /// <param name="models"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of refs or 0 if remove or -1 if not exist</returns>
-        IAsyncEnumerable<int> UnrefOrRemoveManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-
-        /// <summary>
-        /// Tries to unref models with <paramref name="ids"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        void UnrefOrRemoveIgnoreMany(IEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="models"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/>.
-        /// </summary>
-        /// <param name="models"></param>
-        /// <param name="token"></param>
-        void UnrefOrRemoveIgnoreMany(IEnumerable<TModel> models, CancellationToken token = default);
-
-        /// <summary>
-        /// Tries to unref models with <paramref name="ids"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        Task UnrefOrRemoveManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="models"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// </summary>
-        /// <param name="models"></param>
-        /// <param name="token"></param>
-        Task UnrefOrRemoveManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref models with <paramref name="ids"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        Task UnrefOrRemoveManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// Tries to unref <paramref name="models"/>,
-        /// if refs equal or less than 0 - removes that from this <see cref="IPoolActiveStack{TModel, TID}"/> async.
-        /// </summary>
-        /// <param name="models"></param>
-        /// <param name="token"></param>
-        Task UnrefOrRemoveManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
 
         #endregion
 
@@ -724,6 +559,52 @@ namespace ModelBased.Collections.Generic
         /// <returns>True, if contains</returns>
         IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
+        /// <summary>
+        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        int GetRefs(TID id, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        Task<int> GetRefsAsync(TID id, CancellationToken token = default);
+
+        /// <summary>
+        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IEnumerable<int> GetRefsMany(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IAsyncEnumerable<int> GetRefsManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
+        /// You must enumerate all returns
+        /// or dispose enumerator (like using foreach statement, but elements, which not reached will not proceed)
+        /// to avoid dead-lock
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if contains</returns>
+        IAsyncEnumerable<int> GetRefsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
+
         #endregion
 
         #region Clear
@@ -732,7 +613,7 @@ namespace ModelBased.Collections.Generic
         /// Clears empty blocks.
         /// Blocks called empty when all items isn't initialized.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Count of removed empty items, not blocks</returns>
         int ClearEmpty(CancellationToken token = default);
 
         /// <summary>
@@ -740,7 +621,7 @@ namespace ModelBased.Collections.Generic
         /// Blocks called empty when all items isn't initialized.
         /// </summary>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of removed empty items, not blocks</returns>
         Task<int> ClearEmptyAsync(CancellationToken token = default);
 
         #endregion
