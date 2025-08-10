@@ -1545,13 +1545,100 @@ namespace ModelBased.Collections.Generic
 
         #region Enumeration
 
+        /// <inheritdoc/>
         public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken token = default)
         {
-            yield break;
+            if (count == 0)
+                yield break;
+            token.ThrowIfCancellationRequested();
+            Item? current = firstItem;
+            int icap = ItemCapacity;
+            long iterationVersion = Interlocked.Read(in version);
+            TModel[] cache = ArrayPool<TModel>.Shared.Rent(enumerationCacheSz);
+
+            try
+            {
+                int cachePtr = -1, itemStackPtr = 0, cachedCount = 0;
+
+                do
+                {
+                    if (cachedCount != 0) //We have a cache
+                    {
+                        yield return cache[cachePtr];
+                        if (++cachePtr == cache.Length || cachePtr == cachedCount)
+                        {
+                            cachePtr = -1;
+                            cachedCount = 0;
+                        }
+                    }
+                    else //We don't have a cache, lets full it
+                    {
+                        await semaphore.WaitAsync(token);
+                        try
+                        {
+                            long ver = Interlocked.Read(in version);
+                            if (iterationVersion != ver)
+                                throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
+
+                            for (cachePtr = cachedCount = 0;
+                                cachePtr < cache.Length;
+                                itemStackPtr++, cachePtr++, cachedCount++)
+                            {
+                                if (itemStackPtr == icap)
+                                {
+                                    current = current!.NextItem;
+                                    if (current is null)
+                                        goto ExitFor;
+                                    else
+                                    {
+                                        itemStackPtr = -1;
+                                        cachePtr--;
+                                        cachedCount--;
+                                    }
+                                }
+                                else
+                                {
+                                    while (current!.Stack[itemStackPtr].Refs <= 0)
+                                        if (itemStackPtr == icap)
+                                        {
+                                            current = current.NextItem;
+                                            if (current is null)
+                                                goto ExitFor;
+                                            else
+                                                itemStackPtr = 0;
+                                        }
+                                        else
+                                            itemStackPtr++;
+
+                                    cache[cachePtr] = current.Stack[itemStackPtr].Model!;
+                                }
+                            }
+                        ExitFor:;
+
+                            if (cachedCount == 0)
+                                yield break; //Exit enumerator, its an end.
+                            else
+                                cachePtr = 0;
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    }
+                    token.ThrowIfCancellationRequested();
+                }
+                while (cachePtr != -1 || current is not null);
+            }
+            finally
+            {
+                ArrayPool<TModel>.Shared.Return(cache, true);
+            }
         }
 
         public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
         {
+            if (count == 0)
+                yield break;
             token.ThrowIfCancellationRequested();
             Item? current = firstItem;
             int icap = ItemCapacity;
@@ -1592,7 +1679,11 @@ namespace ModelBased.Collections.Generic
                                     if (current is null)
                                         goto ExitFor;
                                     else
-                                        itemStackPtr = 0;
+                                    {
+                                        itemStackPtr = -1;
+                                        cachePtr--;
+                                        cachedCount--;
+                                    }
                                 }
                                 else
                                 {
@@ -1634,10 +1725,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerator<TModel> GetEnumerator()
-        {
-            yield break;
-        }
+        public virtual IEnumerator<TModel> GetEnumerator() => GetEnumerator(default); //Call tokenized method to decrease output file sz and code length
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -1650,6 +1738,11 @@ namespace ModelBased.Collections.Generic
             return -1;
         }
 
+        /// <summary>
+        /// Moves all items from right to left, to use empty space between other items. That method doesn't clear empty blocks
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public virtual int Defragmentation(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
@@ -1664,6 +1757,11 @@ namespace ModelBased.Collections.Generic
             }
         }
 
+        /// <summary>
+        /// Moves all items from right to left async, to use empty space between other items. That method doesn't clear empty blocks
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         public virtual async Task<int> DefragmentationAsync(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
