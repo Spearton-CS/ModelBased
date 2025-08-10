@@ -10,7 +10,7 @@ namespace ModelBased.Collections.Generic
     /// <typeparam name="TModel"></typeparam>
     /// <typeparam name="TID"></typeparam>
     [CollectionBuilder(typeof(PoolActiveStackBuilder), "Create")]
-    public interface IPoolActiveStack<TModel, TID> : IEnumerable<TModel>
+    public interface IPoolActiveStack<TModel, TID> : IEnumerable<TModel>, IAsyncEnumerable<TModel>
         where TID : notnull
         where TModel : notnull, IDataModel<TID>
     {

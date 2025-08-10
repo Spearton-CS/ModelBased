@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System.Buffers;
+using System.Collections;
 using ModelBased.ComponentModel;
 using System.Runtime.CompilerServices;
 
@@ -13,7 +14,7 @@ namespace ModelBased.Collections.Generic
         where TID : notnull
         where TModel : notnull, IDataModel<TID>
     {
-        protected volatile int capacity = 0, count = 0;
+        protected volatile int capacity = 0, count = 0, enumerationCacheSz = 20;
         protected long version = 0;
 
         protected Item firstItem; //Always must be non-null
@@ -1391,51 +1392,114 @@ namespace ModelBased.Collections.Generic
         public virtual int ClearEmpty(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
-
-            Item? previous = firstItem, current;
-            if (firstItem.NextItem is null) //We must never check first item for empty
-                return 0;
-            else
-                current = firstItem.NextItem;
-            int icap = ItemCapacity, removed = 0;
-            do
+            semaphore.Wait(token);
+            try
             {
-                bool empty = true;
-                for (int i = 0; i < icap; i++)
-                    if (current.Stack[i].Refs > 0)
-                    {
-                        empty = false;
-                        break;
-                    }
-                if (empty)
-                {
-                    removed += icap;
-                    Item? next = current.NextItem;
-
-                    current.NextItem = null;
-                    if (current is IDisposable disposable)
-                        disposable.Dispose();
-                    else if (current is IAsyncDisposable adisposable)
-                        adisposable.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
-
-                    previous.NextItem = current = next;
-                    if (current is null)
-                        return removed;
-                }
+                Item? previous = firstItem, current;
+                if (firstItem.NextItem is null) //We must never check first item for empty
+                    return 0;
                 else
+                    current = firstItem.NextItem;
+                int icap = ItemCapacity, removed = 0;
+
+                do
                 {
-                    previous = current;
-                    current = current.NextItem;
+                    bool empty = true;
+                    for (int i = 0; i < icap; i++)
+                        if (current.Stack[i].Refs > 0)
+                        {
+                            empty = false;
+                            break;
+                        }
+
+                    if (empty)
+                    {
+                        removed += icap;
+                        IncrementVersion();
+                        Interlocked.Add(ref capacity, -icap);
+                        Item? next = current.NextItem;
+
+                        current.NextItem = null;
+                        if (current is IDisposable disposable)
+                            disposable.Dispose();
+                        else if (current is IAsyncDisposable adisposable)
+                            adisposable.DisposeAsync().AsTask().ConfigureAwait(false).GetAwaiter().GetResult();
+
+                        previous.NextItem = current = next;
+                        if (current is null)
+                            return removed;
+                    }
+                    else
+                    {
+                        previous = current;
+                        current = current.NextItem;
+                    }
                 }
+                while (current is not null);
+
+                return removed;
             }
-            while (current is not null);
-            return removed;
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual Task<int> ClearEmptyAsync(CancellationToken token = default)
+        public virtual async Task<int> ClearEmptyAsync(CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                Item? previous = firstItem, current;
+                if (firstItem.NextItem is null) //We must never check first item for empty
+                    return 0;
+                else
+                    current = firstItem.NextItem;
+                int icap = ItemCapacity, removed = 0;
+
+                do
+                {
+                    bool empty = true;
+                    for (int i = 0; i < icap; i++)
+                        if (current.Stack[i].Refs > 0)
+                        {
+                            empty = false;
+                            break;
+                        }
+
+                    if (empty)
+                    {
+                        removed += icap;
+                        IncrementVersion();
+                        Interlocked.Add(ref capacity, -icap);
+                        Item? next = current.NextItem;
+
+                        current.NextItem = null;
+                        if (current is IDisposable disposable)
+                            disposable.Dispose();
+                        else if (current is IAsyncDisposable adisposable)
+                            await adisposable.DisposeAsync();
+
+                        previous.NextItem = current = next;
+                        if (current is null)
+                            return removed;
+                    }
+                    else
+                    {
+                        previous = current;
+                        current = current.NextItem;
+                    }
+                }
+                while (current is not null);
+
+                return removed;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         #endregion
@@ -1443,23 +1507,136 @@ namespace ModelBased.Collections.Generic
         #region Copy
 
         /// <inheritdoc/>
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
         public virtual int CopyTo(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
-            => throw new NotImplementedException();
+        {
+            throw new NotImplementedException();
+            //if (count == 0)
+            //    return 0;
+            //ArgumentOutOfRangeException.ThrowIfNegative(index, nameof(index));
+            //ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
+            //if (count < 0)
+            //{
+            //    count = array.Length - index;
+            //    if (count <= 0)
+            //        throw new ArgumentOutOfRangeException(nameof(index), "index must be less than array.Length");
+            //}
+            //else if ((array.Length - index) < count)
+            //    throw new ArgumentOutOfRangeException(nameof(count), "count must be less than array.Length - index");
+
+            //token.ThrowIfCancellationRequested();
+            //semaphore.Wait(token);
+            //try
+            //{
+            //    Item current = firstItem;
+            //    int icap = ItemCapacity;
+                
+            //}
+            //finally
+            //{
+            //    semaphore.Release();
+            //}
+        }
 
         /// <inheritdoc/>
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        public virtual Task<int> CopyToAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
+        public virtual async Task<int> CopyToAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
             => throw new NotImplementedException();
 
         #endregion
 
         #region Enumeration
 
+        public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken token = default)
+        {
+            yield break;
+        }
+
+        public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            Item? current = firstItem;
+            int icap = ItemCapacity;
+            long iterationVersion = Interlocked.Read(in version);
+            TModel[] cache = ArrayPool<TModel>.Shared.Rent(enumerationCacheSz);
+
+            try
+            {
+                int cachePtr = -1, itemStackPtr = 0, cachedCount = 0;
+
+                do
+                {
+                    if (cachedCount != 0) //We have a cache
+                    {
+                        yield return cache[cachePtr];
+                        if (++cachePtr == cache.Length || cachePtr == cachedCount)
+                        {
+                            cachePtr = -1;
+                            cachedCount = 0;
+                        }
+                    }
+                    else //We don't have a cache, lets full it
+                    {
+                        semaphore.Wait(token);
+                        try
+                        {
+                            long ver = Interlocked.Read(in version);
+                            if (iterationVersion != ver)
+                                throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
+
+                            for (cachePtr = cachedCount = 0;
+                                cachePtr < cache.Length;
+                                itemStackPtr++, cachePtr++, cachedCount++)
+                            {
+                                if (itemStackPtr == icap)
+                                {
+                                    current = current!.NextItem;
+                                    if (current is null)
+                                        goto ExitFor;
+                                    else
+                                        itemStackPtr = 0;
+                                }
+                                else
+                                {
+                                    while (current!.Stack[itemStackPtr].Refs <= 0)
+                                        if (itemStackPtr == icap)
+                                        {
+                                            current = current.NextItem;
+                                            if (current is null)
+                                                goto ExitFor;
+                                            else
+                                                itemStackPtr = 0;
+                                        }
+                                        else
+                                            itemStackPtr++;
+
+                                    cache[cachePtr] = current.Stack[itemStackPtr].Model!;
+                                }
+                            }
+                        ExitFor:;
+
+                            if (cachedCount == 0)
+                                yield break; //Exit enumerator, its an end.
+                            else
+                                cachePtr = 0;
+                        }
+                        finally
+                        {
+                            semaphore.Release();
+                        }
+                    }
+                    token.ThrowIfCancellationRequested();
+                }
+                while (cachePtr != -1 || current is not null);
+            }
+            finally
+            {
+                ArrayPool<TModel>.Shared.Return(cache, true);
+            }
+        }
+
         /// <inheritdoc/>
         public virtual IEnumerator<TModel> GetEnumerator()
         {
-            throw new NotImplementedException();
+            yield break;
         }
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();

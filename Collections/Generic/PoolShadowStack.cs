@@ -665,6 +665,7 @@ namespace ModelBased.Collections.Generic
         /// <inheritdoc/>
         public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken token = default)
         {
+            token.ThrowIfCancellationRequested();
             if (models is not null && models.Length > 0)
             {
                 long iterationVersion = Interlocked.Read(in version);
@@ -678,8 +679,48 @@ namespace ModelBased.Collections.Generic
                     await semaphore.WaitAsync(token);
                     try
                     {
-                        if (iterationVersion != version)
-                            throw new InvalidDataException($"PoolShadowStack version mismatch. Iteration version: {iterationVersion}; Data version: {version}");
+                        long ver = Interlocked.Read(in version);
+                        if (iterationVersion != ver)
+                            throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
+                        else if (models[i].Old > -1)
+                        {
+                            model = models[i].Model; //Copy to local bc we must end locking of models (e.g: parallel Threads called GetEnumerator both)
+                            skip = false;
+                        }
+                        else
+                            skip = true;
+                    }
+                    finally
+                    {
+                        semaphore.Release();
+                    }
+                    if (!skip)
+#pragma warning disable CS8603 // Possible null reference return.
+                        yield return model;
+#pragma warning restore CS8603 // Possible null reference return.
+                }
+            }
+        }
+
+        public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
+        {
+            token.ThrowIfCancellationRequested();
+            if (models is not null && models.Length > 0)
+            {
+                long iterationVersion = Interlocked.Read(in version);
+                for (int i = 0; i < models.Length; i++)
+                {
+                    token.ThrowIfCancellationRequested();
+#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
+                    TModel model = default; //Use default bc analyzer and compiler cant 100% be sure, that in lock models we will always set model, or set skip to true
+#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
+                    bool skip = false;
+                    semaphore.Wait(token);
+                    try
+                    {
+                        long ver = Interlocked.Read(in version);
+                        if (iterationVersion != ver)
+                            throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
                         else if (models[i].Old > -1)
                         {
                             model = models[i].Model; //Copy to local bc we must end locking of models (e.g: parallel Threads called GetEnumerator both)
@@ -705,9 +746,7 @@ namespace ModelBased.Collections.Generic
         {
             if (models is not null && models.Length > 0)
             {
-                semaphore.Wait();
                 long iterationVersion = Interlocked.Read(in version);
-                semaphore.Release();
                 for (int i = 0; i < models.Length; i++)
                 {
 #pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
@@ -717,8 +756,9 @@ namespace ModelBased.Collections.Generic
                     semaphore.Wait();
                     try
                     {
-                        if (iterationVersion != version)
-                            throw new InvalidDataException($"PoolShadowStack version mismatch. Iteration version: {iterationVersion}; Data version: {version}");
+                        long ver = Interlocked.Read(in version);
+                        if (iterationVersion != ver)
+                            throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
                         else if (models[i].Old > -1)
                         {
                             model = models[i].Model; //Copy to local bc we must end locking of models (e.g: parallel Threads called GetEnumerator both)
