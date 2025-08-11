@@ -1408,7 +1408,7 @@ namespace ModelBased.Collections.Generic
             semaphore.Wait(token);
             try
             {
-                Item? previous = firstItem, current;
+                Item? current;
                 if (firstItem.NextItem is null) //We must never check first item for empty
                     return 0;
                 else
@@ -1422,9 +1422,10 @@ namespace ModelBased.Collections.Generic
                         removed += icap;
                         IncrementVersion();
                         Interlocked.Add(ref capacity, -icap);
-                        Item? next = current.NextItem;
+                        Item? next = current.NextItem, previous = current.PrevItem!; //Next can be null, bc we don't know items after that,
+                                                                                     //Prev is always not null, bc we know items before that.
 
-                        current.NextItem = null;
+                        current.PrevItem = current.NextItem = null;
                         if (current is IDisposable disposable)
                             disposable.Dispose();
                         else if (current is IAsyncDisposable adisposable)
@@ -1433,12 +1434,11 @@ namespace ModelBased.Collections.Generic
                         previous.NextItem = current = next;
                         if (current is null)
                             return removed;
+                        else
+                            current.PrevItem = previous;
                     }
                     else
-                    {
-                        previous = current;
                         current = current.NextItem;
-                    }
                 }
                 while (current is not null);
 
@@ -1457,7 +1457,7 @@ namespace ModelBased.Collections.Generic
             await semaphore.WaitAsync(token);
             try
             {
-                Item? previous = firstItem, current;
+                Item? current;
                 if (firstItem.NextItem is null) //We must never check first item for empty
                     return 0;
                 else
@@ -1471,9 +1471,10 @@ namespace ModelBased.Collections.Generic
                         removed += icap;
                         IncrementVersion();
                         Interlocked.Add(ref capacity, -icap);
-                        Item? next = current.NextItem;
+                        Item? next = current.NextItem, previous = current.PrevItem!; //Next can be null, bc we don't know items after that,
+                                                                                     //Prev is always not null, bc we know items before that.
 
-                        current.NextItem = null;
+                        current.PrevItem = current.NextItem = null;
                         if (current is IDisposable disposable)
                             disposable.Dispose();
                         else if (current is IAsyncDisposable adisposable)
@@ -1482,12 +1483,11 @@ namespace ModelBased.Collections.Generic
                         previous.NextItem = current = next;
                         if (current is null)
                             return removed;
+                        else
+                            current.PrevItem = previous;
                     }
                     else
-                    {
-                        previous = current;
                         current = current.NextItem;
-                    }
                 }
                 while (current is not null);
 
@@ -1734,13 +1734,61 @@ namespace ModelBased.Collections.Generic
         {
             Item? freeItem = firstItem, currentItem;
             int icap = ItemCapacity, freePtr = 0, notFreePtr, defragmentedCount = 0;
-            
-            
 
-            if (freeItem.NextItem is null) //Fill place in free item (move all right to left)
+            if (FindFreeIndex())
             {
+                if (freeItem.NextItem is not null)
+                {
+                    currentItem = freeItem.NextItem;
+                    while (currentItem.NextItem is not null)
+                        currentItem = currentItem.NextItem; //Move to the rightest item (For performance)
 
+                    notFreePtr = icap - 1;
+                    do
+                    {
+                        if (notFreePtr < 0)
+                        {
+                            currentItem = currentItem.PrevItem!;
+                            if (currentItem == freeItem)
+                                break;
+                        }
+                        else
+                        {
+                            freeItem.Stack[freePtr] = currentItem.Stack[notFreePtr];
+
+                            freeItem.Count++;
+                            currentItem.Stack[notFreePtr] = (0, default);
+                            currentItem.Count--;
+
+                            defragmentedCount++;
+                        }
+                    }
+                    while (FindFreeIndex());
+                }
+
+                //That for should be not in else block bc. after moving from other item we can have free space here, but with 'holes'
+                for (notFreePtr = icap - 1; freePtr < icap && notFreePtr != freePtr;)
+                {
+                    if (freeItem.Stack[freePtr].Refs <= 0) //It's a free space
+                    {
+                        while (freeItem.Stack[notFreePtr].Refs <= 0)
+                            if (--notFreePtr == freePtr)
+                                return defragmentedCount; //Exit 'early' bc there is nothing to move from right to left
+
+                        freeItem.Stack[freePtr] = freeItem.Stack[notFreePtr];
+                        freeItem.Stack[notFreePtr] = (0, default); //'Swap' (its more move than swap)
+
+                        freePtr++;
+                        notFreePtr--; //Change ptrs
+                    }
+                    else
+                        freePtr++;
+                }
+
+                return defragmentedCount;
             }
+            else
+                return 0;
 
             bool FindFreeIndex()
             {
@@ -1750,10 +1798,10 @@ namespace ModelBased.Collections.Generic
                     freeItem = freeItem.NextItem;
                     freePtr = 0;
                     if (freeItem is null)
-                        return false;
+                        return false; //We don't find free space
                 }
                 for (; freePtr < icap; freePtr++)
-                    if (freeItem.Stack[freePtr].Refs <= 0)
+                    if (freeItem.Stack[freePtr].Refs <= 0) //We found free space at ptr
                         return true;
                 return false; //that return will never work if our code is OK. Bc FreeCount <= 0 only when we have in stack model with <= 0 refs
             }
@@ -1838,6 +1886,10 @@ namespace ModelBased.Collections.Generic
             /// Next <see cref="Item"/> or null
             /// </summary>
             public virtual Item? NextItem { get; set; }
+            /// <summary>
+            /// Previous <see cref="Item"/> or null
+            /// </summary>
+            public virtual Item? PrevItem { get; set; }
         }
 
         #endregion
