@@ -7,8 +7,8 @@ namespace MainTests
     public sealed class ShadowStackTest
     {
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
-        private static long[] ids;
-        private static PoolShadowStack<TestDataModel, long> stack;
+        private static int maxId;
+        private static PoolShadowStack<TestDataModel, int> stack;
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         private static int i = 1;
 
@@ -17,7 +17,7 @@ namespace MainTests
         {
             int capacity = Random.Shared.Next(20, 200);
             stack = new(capacity);
-            ids = new long[capacity];
+            maxId = capacity - 1;
 
             Debug.WriteLine($"Capacity: {capacity}");
             Debug.WriteLine("PREPARE_END\r\n\r\n");
@@ -40,13 +40,13 @@ namespace MainTests
                 };
         }
 
-        private static IEnumerable<long> EnumIds1(int many)
+        private static IEnumerable<int> EnumIds1(int many)
         {
             for (int i = 1; i <= many; i++)
                 yield return i;
         }
 
-        private static IEnumerable<long> EnumIds2(int many, int initialI)
+        private static IEnumerable<int> EnumIds2(int many, int initialI)
         {
             for (int i = 0; i < many; i++)
                 yield return initialI + i;
@@ -63,7 +63,7 @@ namespace MainTests
             });
             Debug.WriteLine(stack.Contains(0));
 
-            int many = (ids.Length - 1) / 2;
+            int many = (maxId - 1) / 2;
             Debug.WriteLine($"Add {many} by sync:");
             stack.PushMany(GenerateEnumerator(many));
 
@@ -87,7 +87,7 @@ namespace MainTests
             });
             Debug.WriteLine(stack.Contains(i));
 
-            int many = ids.Length - i, initialI = i;
+            int many = maxId - i, initialI = i;
             Debug.WriteLine($"Add {many} by async:");
             stack.PushMany(GenerateEnumerator(many, false));
 
@@ -112,7 +112,7 @@ namespace MainTests
                 Debug.WriteLine($"Non-equal: {firstModel}");
             i = 1;
 
-            int many = (ids.Length - 1) / 2;
+            int many = (maxId - 1) / 2;
             bool allEqual = true;
             Debug.WriteLine($"Remove {many} by sync:");
             foreach (var model in stack.PopMany(EnumIds1(many)))
@@ -138,7 +138,7 @@ namespace MainTests
                 Debug.WriteLine($"Non-equal: {firstModel}");
             i++;
 
-            int many = ids.Length - i;
+            int many = maxId - i;
             bool allEqual = true;
             Debug.WriteLine($"Remove {many} by async:");
             await foreach (var model in stack.PopManyAsync(EnumIds2(many, i)))
@@ -157,7 +157,7 @@ namespace MainTests
         public void _05OverflowSync()
         {
             Debug.WriteLine("Full by sync");
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 stack.Push(new()
                 {
                     ID = i,
@@ -166,7 +166,7 @@ namespace MainTests
 
             Debug.WriteLine("Check all by sync:");
             bool allContains = true;
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (!stack.Contains(i))
                 {
                     allContains = false;
@@ -175,8 +175,8 @@ namespace MainTests
             Debug.WriteLineIf(allContains, "All contains");
 
             Debug.WriteLine("Overflow by sync:");
-            int max = ids.Length * 2;
-            for (int i = ids.Length; i < max; i++)
+            int max = maxId * 2;
+            for (int i = maxId; i < max; i++)
                 stack.Push(new()
                 {
                     ID = i,
@@ -185,7 +185,7 @@ namespace MainTests
 
             Debug.WriteLine("Check on first by sync:");
             allContains = true; //Use this variable, just remember that's 'allReplaced'
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (stack.Contains(i))
                 {
                     allContains = false;
@@ -195,7 +195,7 @@ namespace MainTests
 
             Debug.WriteLine("Check overflow by sync:");
             allContains = true;
-            for (int i = ids.Length; i < max; i++)
+            for (int i = maxId; i < max; i++)
                 if (!stack.Contains(i))
                 {
                     allContains = false;
@@ -208,7 +208,7 @@ namespace MainTests
         public async Task _06OverflowAsync()
         {
             Debug.WriteLine("Full by async");
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 await stack.PushAsync(new()
                 {
                     ID = i,
@@ -217,7 +217,7 @@ namespace MainTests
 
             Debug.WriteLine("Check all by async:");
             bool allContains = true;
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (!await stack.ContainsAsync(i))
                 {
                     allContains = false;
@@ -226,8 +226,8 @@ namespace MainTests
             Debug.WriteLineIf(allContains, "All contains");
 
             Debug.WriteLine("Overflow by async:");
-            int max = ids.Length * 2;
-            for (int i = ids.Length; i < max; i++)
+            int max = maxId * 2;
+            for (int i = maxId; i < max; i++)
                 await stack.PushAsync(new()
                 {
                     ID = i,
@@ -236,7 +236,7 @@ namespace MainTests
 
             Debug.WriteLine("Check on first by async:");
             allContains = true; //Use this variable, just remember that's 'allReplaced'
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (await stack.ContainsAsync(i))
                 {
                     allContains = false;
@@ -246,7 +246,7 @@ namespace MainTests
 
             Debug.WriteLine("Check overflow by async:");
             allContains = true;
-            for (int i = ids.Length; i < max; i++)
+            for (int i = maxId; i < max; i++)
                 if (!await stack.ContainsAsync(i))
                 {
                     allContains = false;
@@ -259,7 +259,7 @@ namespace MainTests
         public void _07ClearSync()
         {
             Debug.WriteLine("Full by sync");
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 stack.Push(new()
                 {
                     ID = i,
@@ -268,7 +268,7 @@ namespace MainTests
 
             Debug.WriteLine("Check all by sync:");
             bool allContains = true;
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (!stack.Contains(i))
                 {
                     allContains = false;
@@ -280,7 +280,7 @@ namespace MainTests
 
             Debug.WriteLine("Check on cleaned by async:");
             allContains = true; //Use this variable, just remember that's 'allCleaned'
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (stack.Contains(i))
                 {
                     allContains = false;
@@ -293,7 +293,7 @@ namespace MainTests
         public async Task _08ClearAsync()
         {
             Debug.WriteLine("Full by sync");
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 await stack.PushAsync(new()
                 {
                     ID = i,
@@ -302,7 +302,7 @@ namespace MainTests
 
             Debug.WriteLine("Check all by sync:");
             bool allContains = true;
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (!await stack.ContainsAsync(i))
                 {
                     allContains = false;
@@ -314,7 +314,7 @@ namespace MainTests
 
             Debug.WriteLine("Check on cleaned by async:");
             allContains = true; //Use this variable, just remember that's 'allCleaned'
-            for (int i = 0; i < ids.Length; i++)
+            for (int i = 0; i < maxId; i++)
                 if (await stack.ContainsAsync(i))
                 {
                     allContains = false;

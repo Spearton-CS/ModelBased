@@ -20,6 +20,7 @@ namespace ModelBased.Collections.Generic
         protected Item firstItem; //Always must be non-null
         protected SemaphoreSlim semaphore = new(1, 1);
 
+        protected PoolActiveStack() { }
         public PoolActiveStack(int itemCapacity = 20)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(itemCapacity, nameof(itemCapacity));
