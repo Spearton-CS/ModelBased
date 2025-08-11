@@ -51,7 +51,7 @@ namespace ModelBased.Collections.Generic
         {
             Item current = firstItem;
             int icap = ItemCapacity;
-            ((int, TModel?)[] Stack, int Index)? empty = null;
+            (Item Item, int Index)? empty = null;
             while (true)
             {
                 for (int i = 0; i < icap; i++)
@@ -65,7 +65,7 @@ namespace ModelBased.Collections.Generic
                             return current.Stack[i].Refs = Refs + refs; //We found 
                         }
                     }
-                    else empty ??= (current.Stack, i);
+                    else empty ??= (current, i);
                 }
                 if (current.NextItem is not null)
                 {
@@ -74,7 +74,8 @@ namespace ModelBased.Collections.Generic
                 }
                 else if (empty is not null) //We reached the end and have empty slot in stack
                 {
-                    empty.Value.Stack[empty.Value.Index] = (refs, model);
+                    empty.Value.Item.Stack[empty.Value.Index] = (refs, model);
+                    empty.Value.Item.Count++;
                     Interlocked.Increment(ref count);
                     IncrementVersion();
                     return refs;
@@ -83,6 +84,7 @@ namespace ModelBased.Collections.Generic
                 {
                     current = current.NextItem = new Item(icap);
                     current.Stack[0] = (refs, model);
+                    current.Count = 1;
                     Interlocked.Add(ref capacity, icap);
                     Interlocked.Increment(ref count);
                     IncrementVersion();
@@ -241,17 +243,19 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    TModel? stackModel = current.Stack[i].Model;
-                    if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
                     {
-                        Interlocked.Decrement(ref count);
-                        IncrementVersion();
-                        current.Stack[i] = (0, default);
-                        return true; //We found 
+                        TModel? stackModel = current.Stack[i].Model;
+                        if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                        {
+                            Interlocked.Decrement(ref count);
+                            IncrementVersion();
+                            current.Stack[i] = (0, default);
+                            current.Count--;
+                            return true; //We found 
+                        }
                     }
-                }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -274,17 +278,19 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    TModel? model = current.Stack[i].Model;
-                    if (model is not null && model.EqualsByID(id))
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
                     {
-                        Interlocked.Decrement(ref count);
-                        IncrementVersion();
-                        current.Stack[i] = (0, default);
-                        return (true, model); //We found
+                        TModel? model = current.Stack[i].Model;
+                        if (model is not null && model.EqualsByID(id))
+                        {
+                            Interlocked.Decrement(ref count);
+                            IncrementVersion();
+                            current.Stack[i] = (0, default);
+                            current.Count--;
+                            return (true, model); //We found
+                        }
                     }
-                }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -563,16 +569,17 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    TModel? stackModel = current.Stack[i].Model;
-                    if (stackModel is not null && stackModel.EqualsByID(id))
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
                     {
-                        IncrementVersion();
-                        current.Stack[i].Refs++;
-                        return current.Stack[i]; //We found 
+                        TModel? stackModel = current.Stack[i].Model;
+                        if (stackModel is not null && stackModel.EqualsByID(id))
+                        {
+                            IncrementVersion();
+                            current.Stack[i].Refs++;
+                            return current.Stack[i]; //We found 
+                        }
                     }
-                }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -595,15 +602,16 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    TModel? stackModel = current.Stack[i].Model;
-                    if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
                     {
-                        IncrementVersion();
-                        return ++current.Stack[i].Refs; //We found 
+                        TModel? stackModel = current.Stack[i].Model;
+                        if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                        {
+                            IncrementVersion();
+                            return ++current.Stack[i].Refs; //We found 
+                        }
                     }
-                }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -882,21 +890,23 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    TModel? stackModel = current.Stack[i].Model;
-                    if (stackModel is not null && stackModel.EqualsByID(id))
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
                     {
-                        IncrementVersion();
-                        if (--current.Stack[i].Refs > 0) //We found 
-                            return current.Stack[i];
-                        else
+                        TModel? stackModel = current.Stack[i].Model;
+                        if (stackModel is not null && stackModel.EqualsByID(id))
                         {
-                            Interlocked.Decrement(ref count);
-                            return current.Stack[i] = (-1, default); //Removed
+                            IncrementVersion();
+                            if (--current.Stack[i].Refs > 0) //We found 
+                                return current.Stack[i];
+                            else
+                            {
+                                Interlocked.Decrement(ref count);
+                                current.Count--;
+                                return current.Stack[i] = (-1, default); //Removed
+                            }
                         }
                     }
-                }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -919,21 +929,23 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    TModel? stackModel = current.Stack[i].Model;
-                    if (stackModel is not null && stackModel.EqualsByID(model.ID))
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
                     {
-                        IncrementVersion();
-                        int refs = --current.Stack[i].Refs;
-                        if (refs == 0)
+                        TModel? stackModel = current.Stack[i].Model;
+                        if (stackModel is not null && stackModel.EqualsByID(model.ID))
                         {
-                            Interlocked.Decrement(ref count);
-                            current.Stack[i] = (-1, default); //Removed
+                            IncrementVersion();
+                            int refs = --current.Stack[i].Refs;
+                            if (refs == 0)
+                            {
+                                Interlocked.Decrement(ref count);
+                                current.Count--;
+                                current.Stack[i] = (-1, default); //Removed
+                            }
+                            return refs; //We found 
                         }
-                        return refs; //We found 
                     }
-                }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -1212,12 +1224,13 @@ namespace ModelBased.Collections.Generic
             int icap = ItemCapacity;
             while (true)
             {
-                for (int i = 0; i < icap; i++)
-                {
-                    var (Refs, Model) = current.Stack[i];
-                    if (Model is not null && Model.EqualsByID(id))
-                        return Refs; //We found 
-                }
+                if (current.Count > 0)
+                    for (int i = 0; i < icap; i++)
+                    {
+                        var (Refs, Model) = current.Stack[i];
+                        if (Model is not null && Model.EqualsByID(id))
+                            return Refs; //We found 
+                    }
                 if (current.NextItem is not null)
                 {
                     current = current.NextItem; //Search in next Item
@@ -1404,15 +1417,7 @@ namespace ModelBased.Collections.Generic
 
                 do
                 {
-                    bool empty = true;
-                    for (int i = 0; i < icap; i++)
-                        if (current.Stack[i].Refs > 0)
-                        {
-                            empty = false;
-                            break;
-                        }
-
-                    if (empty)
+                    if (current.Count <= 0)
                     {
                         removed += icap;
                         IncrementVersion();
@@ -1461,15 +1466,7 @@ namespace ModelBased.Collections.Generic
 
                 do
                 {
-                    bool empty = true;
-                    for (int i = 0; i < icap; i++)
-                        if (current.Stack[i].Refs > 0)
-                        {
-                            empty = false;
-                            break;
-                        }
-
-                    if (empty)
+                    if (current.Count <= 0)
                     {
                         removed += icap;
                         IncrementVersion();
@@ -1735,14 +1732,38 @@ namespace ModelBased.Collections.Generic
 
         protected virtual int DefragmentationCore(CancellationToken token = default)
         {
-            return -1;
+            Item? freeItem = firstItem, currentItem;
+            int icap = ItemCapacity, freePtr = 0, notFreePtr, defragmentedCount = 0;
+            
+            
+
+            if (freeItem.NextItem is null) //Fill place in free item (move all right to left)
+            {
+
+            }
+
+            bool FindFreeIndex()
+            {
+                //At first we must find item, which have a free space
+                while (freeItem.FreeCount <= 0)
+                {
+                    freeItem = freeItem.NextItem;
+                    freePtr = 0;
+                    if (freeItem is null)
+                        return false;
+                }
+                for (; freePtr < icap; freePtr++)
+                    if (freeItem.Stack[freePtr].Refs <= 0)
+                        return true;
+                return false; //that return will never work if our code is OK. Bc FreeCount <= 0 only when we have in stack model with <= 0 refs
+            }
         }
 
         /// <summary>
         /// Moves all items from right to left, to use empty space between other items. That method doesn't clear empty blocks
         /// </summary>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of defragmented space</returns>
         public virtual int Defragmentation(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
@@ -1761,7 +1782,7 @@ namespace ModelBased.Collections.Generic
         /// Moves all items from right to left async, to use empty space between other items. That method doesn't clear empty blocks
         /// </summary>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of defragmented space</returns>
         public virtual async Task<int> DefragmentationAsync(CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
@@ -1797,6 +1818,21 @@ namespace ModelBased.Collections.Generic
             /// Stack of <typeparamref name="TModel"/>s with <see cref="int"/> Refs
             /// </summary>
             public virtual (int Refs, TModel? Model)[] Stack { get; set; }
+
+            protected volatile int count = 0;
+            /// <summary>
+            /// Count of <typeparamref name="TModel"/>s in <see cref="Stack"/>
+            /// </summary>
+            public virtual int Count
+            {
+                get => count;
+                set => count = value;
+            }
+
+            /// <summary>
+            /// Calculates count of free space in <see cref="Stack"/>
+            /// </summary>
+            public virtual int FreeCount => Stack.Length - Count;
 
             /// <summary>
             /// Next <see cref="Item"/> or null
