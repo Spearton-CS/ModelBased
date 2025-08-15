@@ -38,6 +38,10 @@ namespace ModelBased.Collections.Generic
         /// </summary>
         public virtual int ItemCapacity { get; init; }
         protected virtual void IncrementVersion() => Interlocked.Increment(ref version);
+        protected virtual void IncrementCount() => Interlocked.Increment(ref count);
+        protected virtual void DecrementCount() => Interlocked.Decrement(ref count);
+        protected virtual void IncrementCapacity(int inc) => Interlocked.Add(ref capacity, inc);
+        protected virtual void DecrementCapacity(int dec) => Interlocked.Add(ref capacity, -dec);
 
         #region Add
 
@@ -76,18 +80,22 @@ namespace ModelBased.Collections.Generic
                 else if (empty is not null) //We reached the end and have empty slot in stack
                 {
                     empty.Value.Item.Stack[empty.Value.Index] = (refs, model);
-                    empty.Value.Item.Count++;
-                    Interlocked.Increment(ref count);
+                    empty.Value.Item.IncrementCount();
+                    IncrementCount();
                     IncrementVersion();
                     return refs;
                 }
                 else //We reached the end and all slots is full
                 {
+                    Item prev = current;
                     current = current.NextItem = new Item(icap);
+
                     current.Stack[0] = (refs, model);
                     current.Count = 1;
-                    Interlocked.Add(ref capacity, icap);
-                    Interlocked.Increment(ref count);
+                    current.PrevItem = prev;
+
+                    IncrementCapacity(icap);
+                    IncrementCount();
                     IncrementVersion();
                     return refs;
                 }
@@ -250,10 +258,10 @@ namespace ModelBased.Collections.Generic
                         TModel? stackModel = current.Stack[i].Model;
                         if (stackModel is not null && stackModel.EqualsByID(model.ID))
                         {
-                            Interlocked.Decrement(ref count);
+                            DecrementCount();
                             IncrementVersion();
                             current.Stack[i] = (0, default);
-                            current.Count--;
+                            current.DecrementCount();
                             return true; //We found 
                         }
                     }
@@ -285,10 +293,10 @@ namespace ModelBased.Collections.Generic
                         TModel? model = current.Stack[i].Model;
                         if (model is not null && model.EqualsByID(id))
                         {
-                            Interlocked.Decrement(ref count);
+                            DecrementCount();
                             IncrementVersion();
                             current.Stack[i] = (0, default);
-                            current.Count--;
+                            current.DecrementCount();
                             return (true, model); //We found
                         }
                     }
@@ -902,8 +910,8 @@ namespace ModelBased.Collections.Generic
                                 return current.Stack[i];
                             else
                             {
-                                Interlocked.Decrement(ref count);
-                                current.Count--;
+                                DecrementCount();
+                                current.DecrementCount();
                                 return current.Stack[i] = (-1, default); //Removed
                             }
                         }
@@ -940,8 +948,8 @@ namespace ModelBased.Collections.Generic
                             int refs = --current.Stack[i].Refs;
                             if (refs == 0)
                             {
-                                Interlocked.Decrement(ref count);
-                                current.Count--;
+                                DecrementCount();
+                                current.DecrementCount();
                                 current.Stack[i] = (-1, default); //Removed
                             }
                             return refs; //We found 
@@ -1422,7 +1430,7 @@ namespace ModelBased.Collections.Generic
                     {
                         removed += icap;
                         IncrementVersion();
-                        Interlocked.Add(ref capacity, -icap);
+                        IncrementCapacity(icap);
                         Item? next = current.NextItem, previous = current.PrevItem!; //Next can be null, bc we don't know items after that,
                                                                                      //Prev is always not null, bc we know items before that.
 
@@ -1471,7 +1479,7 @@ namespace ModelBased.Collections.Generic
                     {
                         removed += icap;
                         IncrementVersion();
-                        Interlocked.Add(ref capacity, -icap);
+                        IncrementCapacity(icap);
                         Item? next = current.NextItem, previous = current.PrevItem!; //Next can be null, bc we don't know items after that,
                                                                                      //Prev is always not null, bc we know items before that.
 
@@ -1738,7 +1746,7 @@ namespace ModelBased.Collections.Generic
 
             if (FindFreeIndex())
             {
-                if (freeItem.NextItem is not null)
+                if (freeItem.NextItem is not null) //Check next on null, bc we need next items to move items from it to left
                 {
                     currentItem = freeItem.NextItem;
                     while (currentItem.NextItem is not null)
@@ -1749,32 +1757,38 @@ namespace ModelBased.Collections.Generic
                     {
                         if (notFreePtr < 0)
                         {
-                            currentItem = currentItem.PrevItem!;
-                            if (currentItem == freeItem)
+                            notFreePtr = icap - 1;
+                            currentItem = currentItem.PrevItem;
+                            if (currentItem is null || currentItem == freeItem)
                                 break;
                         }
-                        else
+                        else if (currentItem.Stack[notFreePtr].Refs > 0)
                         {
                             freeItem.Stack[freePtr] = currentItem.Stack[notFreePtr];
 
-                            freeItem.Count++;
+                            freeItem.IncrementCount();
                             currentItem.Stack[notFreePtr] = (0, default);
-                            currentItem.Count--;
+                            currentItem.DecrementCount();
 
                             defragmentedCount++;
                         }
+                        notFreePtr--;
                     }
                     while (FindFreeIndex());
                 }
 
-                //That for should be not in else block bc. after moving from other item we can have free space here, but with 'holes'
+                /*//That for should be not in else block bc. after moving from other item we can have free space here, but with 'holes'
                 for (notFreePtr = icap - 1; freePtr < icap && notFreePtr != freePtr;)
                 {
                     if (freeItem.Stack[freePtr].Refs <= 0) //It's a free space
                     {
                         while (freeItem.Stack[notFreePtr].Refs <= 0)
                             if (--notFreePtr == freePtr)
+                            {
+                                if (defragmentedCount != 0)
+                                    IncrementVersion();
                                 return defragmentedCount; //Exit 'early' bc there is nothing to move from right to left
+                            }
 
                         freeItem.Stack[freePtr] = freeItem.Stack[notFreePtr];
                         freeItem.Stack[notFreePtr] = (0, default); //'Swap' (its more move than swap)
@@ -1784,8 +1798,10 @@ namespace ModelBased.Collections.Generic
                     }
                     else
                         freePtr++;
-                }
+                }*/
 
+                if (defragmentedCount != 0)
+                    IncrementVersion();
                 return defragmentedCount;
             }
             else
@@ -1877,20 +1893,31 @@ namespace ModelBased.Collections.Generic
                 get => count;
                 set => count = value;
             }
+            public virtual void IncrementCount() => Interlocked.Increment(ref count);
+            public virtual void DecrementCount() => Interlocked.Decrement(ref count);
 
             /// <summary>
             /// Calculates count of free space in <see cref="Stack"/>
             /// </summary>
             public virtual int FreeCount => Stack.Length - Count;
 
+            protected volatile Item? prev, next;
             /// <summary>
             /// Next <see cref="Item"/> or null
             /// </summary>
-            public virtual Item? NextItem { get; set; }
+            public virtual Item? NextItem
+            {
+                get => next;
+                set => next = value;
+            }
             /// <summary>
             /// Previous <see cref="Item"/> or null
             /// </summary>
-            public virtual Item? PrevItem { get; set; }
+            public virtual Item? PrevItem
+            {
+                get => prev;
+                set => prev = value;
+            }
         }
 
         #endregion

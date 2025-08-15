@@ -26,7 +26,7 @@ namespace MainTests
         [TestCleanup]
         public void Cleanup()
         {
-            Debug.WriteLine("[TEST_CLEANUP]\r\n\r\n");
+            Debug.WriteLine("\r\n[TEST_CLEANUP]\r\n\r\n");
         }
 
         private static IEnumerable<TestDataModel> GenerateEnumerator(int many, bool sync = true)
@@ -46,10 +46,10 @@ namespace MainTests
                 yield return i;
         }
 
-        private static IEnumerable<int> EnumIds2(int many, int initialI)
+        private static IEnumerable<int> EnumIds2(int many, int i)
         {
-            for (int i = 0; i < many; i++)
-                yield return initialI + i;
+            for (; i < many; i++)
+                yield return i + i;
         }
 
         [TestMethod(), Priority(0)]
