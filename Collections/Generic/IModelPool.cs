@@ -158,6 +158,32 @@
 
         #endregion
 
+        #region
+
+        public bool Modify(TID id, TModel mod, CancellationToken token = default);
+        public Task<bool> ModifyAsync(TID id, TModel mod, CancellationToken token = default);
+
+        public bool Modify(TModel src, TModel mod, CancellationToken token = default);
+        public Task<bool> ModifyAsync(TModel src, TModel mod, CancellationToken token = default);
+
+        public IEnumerable<bool> ModifyMany(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync(IAsyncEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+
+        public IEnumerable<bool> ModifyMany(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync(IAsyncEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+
+        public IEnumerable<bool> ModifyManyIgnore(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyIgnoreAsync(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyIgnoreAsync(IAsyncEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+
+        public bool ModifyManyIgnore(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+        public Task<bool> ModifyManyIgnoreAsync(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+        public Task<bool> ModifyManyIgnoreAsync(IAsyncEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+
+        #endregion
+
         //#region Subscribe/Desubscribe
 
         //int Subscribe(TModel model);
