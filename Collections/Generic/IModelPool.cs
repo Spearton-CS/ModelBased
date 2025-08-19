@@ -160,27 +160,27 @@
 
         #region Modify
 
-        public bool Modify(TID id, TModel mod, CancellationToken token = default);
-        public Task<bool> ModifyAsync(TID id, TModel mod, CancellationToken token = default);
+        public bool Modify<TUpdateableModel>(TID id, TUpdateableModel mod, CancellationToken token = default);
+        public Task<bool> ModifyAsync<TUpdateableModel>(TID id, TUpdateableModel mod, CancellationToken token = default);
 
-        public bool Modify(TModel src, TModel mod, CancellationToken token = default);
-        public Task<bool> ModifyAsync(TModel src, TModel mod, CancellationToken token = default);
+        public bool Modify<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default);
+        public Task<bool> ModifyAsync<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default);
 
-        public IEnumerable<bool> ModifyMany(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
-        public IAsyncEnumerable<bool> ModifyManyAsync(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
-        public IAsyncEnumerable<bool> ModifyManyAsync(IAsyncEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+        public IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default);
 
-        public IEnumerable<bool> ModifyMany(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
-        public IAsyncEnumerable<bool> ModifyManyAsync(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
-        public IAsyncEnumerable<bool> ModifyManyAsync(IAsyncEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+        public IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default);
 
-        public IEnumerable<bool> ModifyManyIgnore(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
-        public IAsyncEnumerable<bool> ModifyManyIgnoreAsync(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
-        public IAsyncEnumerable<bool> ModifyManyIgnoreAsync(IAsyncEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default);
+        public IEnumerable<bool> ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default);
+        public IAsyncEnumerable<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default);
 
-        public bool ModifyManyIgnore(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
-        public Task<bool> ModifyManyIgnoreAsync(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
-        public Task<bool> ModifyManyIgnoreAsync(IAsyncEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default);
+        public bool ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default);
+        public Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default);
+        public Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default);
 
         #endregion
 
@@ -240,14 +240,14 @@
         /// <param name="minOld">Minimal old of shadow model (its not time, its count of modification of shadow stack after that model)</param>
         /// <param name="token"></param>
         /// <returns>Count of cleaned shadow models (0-ref)</returns>
-        int ClearShadow(int minOld = -1, CancellationToken token = default);
+        int ClearShadow(CancellationToken token = default);
         /// <summary>
         /// Clears <see cref="IPoolShadowStack{TModel, TID}"/>. Can be canceled
         /// </summary>
         /// <param name="minOld">Minimal old of shadow model (its not time, its count of modification of shadow stack after that model)</param>
         /// <param name="token"></param>
         /// <returns>Count of cleaned shadow models (0-ref)</returns>
-        Task<int> ClearShadowAsync(int minOld = -1, CancellationToken token = default);
+        Task<int> ClearShadowAsync(CancellationToken token = default);
 
         /// <summary>
         /// <see cref="IPoolShadowStack{TModel, TID}.Capacity"/>

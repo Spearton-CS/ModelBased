@@ -15,7 +15,7 @@ namespace ModelBased.Collections.Generic
         where TModel : notnull, IDataModel<TID>
     {
         protected volatile int capacity = 0, count = 0, enumerationCacheSz = 20;
-        protected long version = 0;
+        protected ulong version = 0;
 
         protected Item firstItem; //Always must be non-null
         protected SemaphoreSlim semaphore = new(1, 1);
@@ -1520,7 +1520,7 @@ namespace ModelBased.Collections.Generic
             token.ThrowIfCancellationRequested();
             Item? current = firstItem;
             int icap = ItemCapacity;
-            long iterationVersion = Interlocked.Read(in version);
+            ulong iterationVersion = Interlocked.Read(in version);
             TModel[] cache = ArrayPool<TModel>.Shared.Rent(enumerationCacheSz);
 
             try
@@ -1543,7 +1543,7 @@ namespace ModelBased.Collections.Generic
                         await semaphore.WaitAsync(token);
                         try
                         {
-                            long ver = Interlocked.Read(in version);
+                            ulong ver = Interlocked.Read(in version);
                             if (iterationVersion != ver)
                                 throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
 
@@ -1609,7 +1609,7 @@ namespace ModelBased.Collections.Generic
             token.ThrowIfCancellationRequested();
             Item? current = firstItem;
             int icap = ItemCapacity;
-            long iterationVersion = Interlocked.Read(in version);
+            ulong iterationVersion = Interlocked.Read(in version);
             TModel[] cache = ArrayPool<TModel>.Shared.Rent(enumerationCacheSz);
 
             try
@@ -1632,7 +1632,7 @@ namespace ModelBased.Collections.Generic
                         semaphore.Wait(token);
                         try
                         {
-                            long ver = Interlocked.Read(in version);
+                            ulong ver = Interlocked.Read(in version);
                             if (iterationVersion != ver)
                                 throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
 

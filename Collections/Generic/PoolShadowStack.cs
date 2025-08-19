@@ -26,7 +26,7 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Count of modifications of <see cref="models"/>. Used by <see cref="GetEnumerator"/> to validate data between yield returns
         /// </summary>
-        protected long version = 0;
+        protected ulong version = 0;
         /// <summary>
         /// Count of items, where old >= 0
         /// </summary>
@@ -580,7 +580,7 @@ namespace ModelBased.Collections.Generic
             token.ThrowIfCancellationRequested();
             if (models is not null && models.Length > 0)
             {
-                long iterationVersion = Interlocked.Read(in version);
+                ulong iterationVersion = Interlocked.Read(in version);
                 for (int i = 0; i < models.Length; i++)
                 {
                     token.ThrowIfCancellationRequested();
@@ -591,7 +591,7 @@ namespace ModelBased.Collections.Generic
                     await semaphore.WaitAsync(token);
                     try
                     {
-                        long ver = Interlocked.Read(in version);
+                        ulong ver = Interlocked.Read(in version);
                         if (iterationVersion != ver)
                             throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
                         else if (models[i].Old > -1)
@@ -619,7 +619,7 @@ namespace ModelBased.Collections.Generic
             token.ThrowIfCancellationRequested();
             if (models is not null && models.Length > 0)
             {
-                long iterationVersion = Interlocked.Read(in version);
+                ulong iterationVersion = Interlocked.Read(in version);
                 for (int i = 0; i < models.Length; i++)
                 {
                     token.ThrowIfCancellationRequested();
@@ -630,7 +630,7 @@ namespace ModelBased.Collections.Generic
                     semaphore.Wait(token);
                     try
                     {
-                        long ver = Interlocked.Read(in version);
+                        ulong ver = Interlocked.Read(in version);
                         if (iterationVersion != ver)
                             throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
                         else if (models[i].Old > -1)
@@ -654,42 +654,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerator<TModel> GetEnumerator()
-        {
-            if (models is not null && models.Length > 0)
-            {
-                long iterationVersion = Interlocked.Read(in version);
-                for (int i = 0; i < models.Length; i++)
-                {
-#pragma warning disable CS8600 // Converting null literal or possible null value to non-nullable type.
-                    TModel model = default; //Use default bc analyzer and compiler cant 100% be sure, that in lock models we will always set model, or set skip to true
-#pragma warning restore CS8600 // Converting null literal or possible null value to non-nullable type.
-                    bool skip = false;
-                    semaphore.Wait();
-                    try
-                    {
-                        long ver = Interlocked.Read(in version);
-                        if (iterationVersion != ver)
-                            throw new InvalidDataException($"PoolActiveStack version mismatch. Iteration version: {iterationVersion}; Data version: {ver}");
-                        else if (models[i].Old > -1)
-                        {
-                            model = models[i].Model; //Copy to local bc we must end locking of models (e.g: parallel Threads called GetEnumerator both)
-                            skip = false;
-                        }
-                        else
-                            skip = true;
-                    }
-                    finally
-                    {
-                        semaphore.Release();
-                    }
-                    if (!skip)
-#pragma warning disable CS8603 // Possible null reference return.
-                        yield return model;
-#pragma warning restore CS8603 // Possible null reference return.
-                }
-            }
-        }
+        public virtual IEnumerator<TModel> GetEnumerator() => GetEnumerator(default);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
