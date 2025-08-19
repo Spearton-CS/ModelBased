@@ -1,13 +1,15 @@
-﻿namespace ModelBased.Collections.Generic
+﻿using System.Collections;
+
+namespace ModelBased.Collections.Generic
 {
-    using ModelBased.ComponentModel;
+    using ComponentModel;
 
     public class ModelPool<TModel, TID> : IModelPool<ModelPool<TModel, TID>, TModel, TID>
         where TID : notnull
         where TModel : IDataModel<TModel, TID>
     {
-        protected LinkedList<(TModel Model, int Refs)> models = [];
-        protected IPoolShadowStack<TModel, TID> shadowModels;
+        protected IPoolActiveStack<TModel, TID> activeStack = [];
+        protected IPoolShadowStack<TModel, TID> shadowStack;
         protected SemaphoreSlim semaphore = new(1, 1);
         
         public ModelPool(int shadowStackCapacity = 0)
@@ -15,247 +17,287 @@
             
         }
 
+        #region Properties
+
         public static ModelPool<TModel, TID> Shared => throw new NotImplementedException();
 
-        public int ShadowCapacity => throw new NotImplementedException();
+        public virtual int ShadowCapacity => throw new NotImplementedException();
 
-        public int ShadowCount => throw new NotImplementedException();
+        public virtual int ShadowCount => throw new NotImplementedException();
 
-        public int Count => throw new NotImplementedException();
+        public virtual int Count => throw new NotImplementedException();
 
-        public int ClearShadow(int minOld = -1)
+        #endregion
+
+        #region Clear shadow
+
+        public virtual int ClearShadow(int minOld = -1, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<int> ClearShadowAsync(int minOld = -1, CancellationToken token = default)
+        public virtual async Task<int> ClearShadowAsync(int minOld = -1, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public bool Contains(TID id)
+        #endregion
+
+        #region Searching
+
+        public virtual bool Contains(TID id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> ContainsAsync(TID id, CancellationToken token = default)
+        public virtual async Task<bool> ContainsAsync(TID id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public bool IsRented(TID id)
+        public virtual bool IsRented(TID id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> IsRentedAsync(TID id, CancellationToken token = default)
+        public virtual async Task<bool> IsRentedAsync(TID id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids)
+        public virtual IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<bool> IsRentedManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> IsRentedManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<bool> IsRentedManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> IsRentedManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public TModel Rent(TID id)
+        #endregion
+
+        #region Modify
+
+        public virtual bool Modify(TID id, TModel mod, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<TModel> RentAsync(TID id, CancellationToken token = default)
+        public virtual bool Modify(TModel src, TModel mod, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<TModel> RentMany(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task<bool> ModifyAsync(TID id, TModel mod, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<TModel> RentManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task<bool> ModifyAsync(TModel src, TModel mod, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<TModel> RentManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual IEnumerable<bool> ModifyMany(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public bool Return(TModel model)
+        public virtual IEnumerable<bool> ModifyMany(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<bool> ReturnAsync(TModel model, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ModifyManyAsync(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<bool> ReturnMany(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ModifyManyAsync(IAsyncEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<bool> ReturnManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ModifyManyAsync(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<bool> ReturnManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ModifyManyAsync(IAsyncEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        public int ToArray(TModel[] array, int index = 0, int count = -1)
+        public virtual IEnumerable<bool> ModifyManyIgnore(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        public Task<int> ToArrayAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
+        public virtual bool ModifyManyIgnore(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public bool TryRent(TID id, out TModel? model)
+        public virtual async IAsyncEnumerable<bool> ModifyManyIgnoreAsync(IEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public Task<(bool Success, TModel? Result)> TryRentAsync(TID id, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> ModifyManyIgnoreAsync(IAsyncEnumerable<(TID, TModel)> idWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<(bool Success, TModel? Result)> TryRentMany(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task<bool> ModifyManyIgnoreAsync(IEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<(bool Success, TModel? Result)> TryRentManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task<bool> ModifyManyIgnoreAsync(IAsyncEnumerable<(TModel, TModel)> srcWithMods, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<(bool Success, TModel? Result)> TryRentManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        #endregion
+
+        #region Rent/Return
+
+        public virtual TModel Rent(TID id, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
+
+        public virtual async Task<TModel> RentAsync(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<TModel> RentMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<TModel> RentManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<TModel> RentManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool Return(TModel model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> ReturnAsync(TModel model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<bool> ReturnMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<bool> ReturnManyAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<bool> ReturnManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool ReturnManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> ReturnManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> ReturnManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool TryRent(TID id, out TModel? model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<(bool Success, TModel? Result)> TryRentAsync(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<(bool Success, TModel? Result)> TryRentMany(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<(bool Success, TModel? Result)> TryRentManyAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<(bool Success, TModel? Result)> TryRentManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
 
         #region Enumeration
 
-        public IEnumerable<TID> EnumerateIDs()
+        public virtual IEnumerator<TID> EnumerateIDs()
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<TID> EnumerateIDsAsync(CancellationToken token = default)
+        public virtual async IAsyncEnumerator<TID> EnumerateIDsAsync()
         {
             throw new NotImplementedException();
         }
 
-        public IAsyncEnumerable<TModel> AsAsyncEnumerable(CancellationToken token = default)
+        public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
-        public IEnumerable<TModel> AsEnumerable()
+        public virtual IEnumerator<TModel> GetEnumerator()
         {
             throw new NotImplementedException();
         }
 
-        public bool TryRent(TID id, out TModel? model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public TModel Rent(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Return(TModel model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool ReturnManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> ReturnManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<bool> ReturnManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int ClearShadow(int minOld = -1, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool IsRented(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public bool Contains(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public int ToArray(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<TID> EnumerateIDsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAsyncEnumerable<TModel> AsAsyncEnumerable()
-        {
-            throw new NotImplementedException();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
     }

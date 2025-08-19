@@ -501,7 +501,7 @@ namespace ModelBased.Collections.Generic
 
         #endregion
 
-        #region Additionals (clear, to array)
+        #region Additionals (clear)
 
         /// <summary>
         /// Core for <see cref="Clear"/> and <see cref="ClearAsync"/>
@@ -560,94 +560,6 @@ namespace ModelBased.Collections.Generic
                 try
                 {
                     return ClearCore();
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }
-            else
-                return 0;
-        }
-
-        /// <inheritdoc/>
-        public virtual async Task<int> ToArrayAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
-        {
-            if (models is null || models.Length == 0 || token.IsCancellationRequested)
-                return 0;
-
-            ArgumentNullException.ThrowIfNull(array, nameof(array));
-
-            ArgumentOutOfRangeException.ThrowIfNegative(index, nameof(index));
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
-
-            count = Math.Min(count, Math.Min(models.Length, array.Length - index));
-            if (count > 0)
-            {
-                await semaphore.WaitAsync(token);
-                try
-                {
-                    int copy = 0;
-                    for (int i = 0, j = index;
-                        i < models.Length
-                        && j < array.Length
-                        && copy < count
-                        && !token.IsCancellationRequested;
-                        i++)
-                    {
-                        if (models[i].Old > -1)
-                        {
-                            array[j] = models[i].Model;
-                            j++;
-                            copy++;
-                        }
-                    }
-
-                    return copy;
-                }
-                finally
-                {
-                    semaphore.Release();
-                }
-            }
-            else
-                return 0;
-        }
-
-        /// <inheritdoc/>
-        public virtual int ToArray(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
-        {
-            if (models is null || models.Length == 0 || token.IsCancellationRequested)
-                return 0;
-
-            ArgumentNullException.ThrowIfNull(array, nameof(array));
-
-            ArgumentOutOfRangeException.ThrowIfNegative(index, nameof(index));
-            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
-
-            count = Math.Min(count, Math.Min(models.Length, array.Length - index));
-            if (count > 0)
-            {
-                semaphore.Wait(token);
-                try
-                {
-                    int copy = 0;
-                    for (int i = 0, j = index;
-                        i < models.Length
-                        && j < array.Length
-                        && copy < count
-                        && !token.IsCancellationRequested;
-                        i++)
-                    {
-                        if (models[i].Old > -1)
-                        {
-                            array[j] = models[i].Model;
-                            j++;
-                            copy++;
-                        }
-                    }
-
-                    return copy;
                 }
                 finally
                 {

@@ -7,7 +7,7 @@
     /// </summary>
     /// <typeparam name="TModel"></typeparam>
     /// <typeparam name="TID"></typeparam>
-    public interface IModelPool<TModel, TID>
+    public interface IModelPool<TModel, TID> : IEnumerable<TModel>, IAsyncEnumerable<TModel>
         where TID : notnull
         where TModel : notnull, IDataModel<TModel, TID> //Exactly TModel, TID, bc we need Factory
     {
@@ -158,7 +158,7 @@
 
         #endregion
 
-        #region
+        #region Modify
 
         public bool Modify(TID id, TModel mod, CancellationToken token = default);
         public Task<bool> ModifyAsync(TID id, TModel mod, CancellationToken token = default);
@@ -348,32 +348,6 @@
 
         #endregion
 
-        #region Copy
-
-        /// <summary>
-        /// Copies active models to <paramref name="array"/> into index <paramref name="index"/> up to <paramref name="count"/>.
-        /// Excluding shadow models
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="index">Start index in <paramref name="array"/></param>
-        /// <param name="count"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of copied items</returns>
-        int ToArray(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
-        /// <summary>
-        /// Copies active models to <paramref name="array"/> into index <paramref name="index"/> up to <paramref name="count"/> async.
-        /// Excluding shadow models.
-        /// Can be canceled
-        /// </summary>
-        /// <param name="array"></param>
-        /// <param name="index">Start index in <paramref name="array"/></param>
-        /// <param name="count"></param>
-        /// <param name="token"></param>
-        /// <returns>Count of copied items</returns>
-        Task<int> ToArrayAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
-
-        #endregion
-
         #region Enumeration
 
         /// <summary>
@@ -382,28 +356,14 @@
         /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
         /// </summary>
         /// <returns></returns>
-        IEnumerable<TID> EnumerateIDs();
+        IEnumerator<TID> EnumerateIDs();
         /// <summary>
         /// Enumerates <typeparamref name="TID"/>s of active <typeparamref name="TModel"/>s async.
         /// Excluding shadow.
         /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
         /// </summary>
         /// <returns></returns>
-        IAsyncEnumerable<TID> EnumerateIDsAsync();
-        /// <summary>
-        /// Enumerates active <typeparamref name="TModel"/>s.
-        /// Excluding shadow.
-        /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
-        /// </summary>
-        /// <returns></returns>
-        IEnumerable<TModel> AsEnumerable();
-        /// <summary>
-        /// Enumerates active <typeparamref name="TModel"/>s async.
-        /// Excluding shadow.
-        /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
-        /// </summary>
-        /// <returns></returns>
-        IAsyncEnumerable<TModel> AsAsyncEnumerable();
+        IAsyncEnumerator<TID> EnumerateIDsAsync();
 
         #endregion
     }

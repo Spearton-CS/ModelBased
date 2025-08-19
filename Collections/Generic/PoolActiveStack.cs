@@ -1510,45 +1510,6 @@ namespace ModelBased.Collections.Generic
 
         #endregion
 
-        #region Copy
-
-        /// <inheritdoc/>
-        public virtual int CopyTo(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-            //if (count == 0)
-            //    return 0;
-            //ArgumentOutOfRangeException.ThrowIfNegative(index, nameof(index));
-            //ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, array.Length, nameof(index));
-            //if (count < 0)
-            //{
-            //    count = array.Length - index;
-            //    if (count <= 0)
-            //        throw new ArgumentOutOfRangeException(nameof(index), "index must be less than array.Length");
-            //}
-            //else if ((array.Length - index) < count)
-            //    throw new ArgumentOutOfRangeException(nameof(count), "count must be less than array.Length - index");
-
-            //token.ThrowIfCancellationRequested();
-            //semaphore.Wait(token);
-            //try
-            //{
-            //    Item current = firstItem;
-            //    int icap = ItemCapacity;
-                
-            //}
-            //finally
-            //{
-            //    semaphore.Release();
-            //}
-        }
-
-        /// <inheritdoc/>
-        public virtual async Task<int> CopyToAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default)
-            => throw new NotImplementedException();
-
-        #endregion
-
         #region Enumeration
 
         /// <inheritdoc/>

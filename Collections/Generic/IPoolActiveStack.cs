@@ -625,15 +625,6 @@ namespace ModelBased.Collections.Generic
         Task<int> ClearEmptyAsync(CancellationToken token = default);
 
         #endregion
-
-        #region Copy
-
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        int CopyTo(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        Task<int> CopyToAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
-
-        #endregion
     }
 
     public static class PoolActiveStackBuilder

@@ -199,29 +199,6 @@ namespace ModelBased.Collections.Generic
         IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         #endregion
-
-        /// <summary>
-        /// Copies <typeparamref name="TModel"/>s from this <see cref="IPoolShadowStack{TModel, TID}"/> to <typeparamref name="TModel"/> array.
-        /// Can be canceled
-        /// </summary>
-        /// <param name="array">Destination array</param>
-        /// <param name="index">Index in dest <paramref name="array"/></param>
-        /// <param name="count">Count of <typeparamref name="TModel"/>s to copy to <paramref name="array"/></param>
-        /// <param name="token"></param>
-        /// <returns>Count of copied <typeparamref name="TModel"/>s</returns>
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        int ToArray(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
-        /// <summary>
-        /// Copies <typeparamref name="TModel"/>s from this <see cref="IPoolShadowStack{TModel, TID}"/> to <typeparamref name="TModel"/> array async.
-        /// Can be canceled
-        /// </summary>
-        /// <param name="array">Destination array</param>
-        /// <param name="index">Index in dest <paramref name="array"/></param>
-        /// <param name="count">Count of <typeparamref name="TModel"/>s to copy to <paramref name="array"/></param>
-        /// <param name="token"></param>
-        /// <returns>Count of copied <typeparamref name="TModel"/>s</returns>
-        [Obsolete("Now we dont need CopyTo - its not implemented")]
-        Task<int> ToArrayAsync(TModel[] array, int index = 0, int count = -1, CancellationToken token = default);
     }
 
     /// <summary>
