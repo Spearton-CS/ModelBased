@@ -184,37 +184,53 @@
 
         #endregion
 
-        //#region Subscribe/Desubscribe
+        #region Subscribe/Desubscribe
 
-        //int Subscribe(TModel model);
-        //int Subscribe(TID id);
+        int Subscribe(TModel model, CancellationToken token = default);
+        int Subscribe(TID id, CancellationToken token = default);
 
-        //Task<int> SubscribeAsync(TID id, CancellationToken token = default);
-        //Task<int> SubscribeAsync(TModel model, CancellationToken token = default);
+        Task<int> SubscribeAsync(TID id, CancellationToken token = default);
+        Task<int> SubscribeAsync(TModel model, CancellationToken token = default);
 
-        //int SubscribeMany(IEnumerable<TModel> models);
-        //int SubscribeMany(IEnumerable<TID> id);
+        IEnumerable<int> SubscribeMany(IEnumerable<TModel> models, CancellationToken token = default);
+        IEnumerable<int> SubscribeMany(IEnumerable<TID> id, CancellationToken token = default);
 
-        //IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default);
-        //IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default);
-        //IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
-        //IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
+        bool SubscribeManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
+        bool SubscribeManyIgnore(IEnumerable<TID> id, CancellationToken token = default);
 
-        //int Desubscribe(TModel model);
-        //int Desubscribe(TID id);
+        IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default);
+        IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default);
+        IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
+        IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
 
-        //Task<int> DesubscribeAsync(TModel model, CancellationToken token = default);
-        //Task<int> DesubscribeAsync(TID id, CancellationToken token = default);
+        Task<bool> SubscribeManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default);
+        Task<bool> SubscribeManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default);
+        Task<bool> SubscribeManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
+        Task<bool> SubscribeManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
 
-        //int DesubscribeMany(IEnumerable<TModel> models);
-        //int DesubscribeMany(IEnumerable<TID> id);
+        int Desubscribe(TModel model, CancellationToken token = default);
+        int Desubscribe(TID id, CancellationToken token = default);
 
-        //IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default);
-        //IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default);
-        //IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
-        //IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
+        Task<int> DesubscribeAsync(TModel model, CancellationToken token = default);
+        Task<int> DesubscribeAsync(TID id, CancellationToken token = default);
 
-        //#endregion
+        IEnumerable<int> DesubscribeMany(IEnumerable<TModel> models, CancellationToken token = default);
+        IEnumerable<int> DesubscribeMany(IEnumerable<TID> id, CancellationToken token = default);
+
+        bool DesubscribeManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
+        bool DesubscribeManyIgnore(IEnumerable<TID> id, CancellationToken token = default);
+
+        IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default);
+        IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default);
+        IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
+        IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
+
+        Task<bool> DesubscribeManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default);
+        Task<bool> DesubscribeManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default);
+        Task<bool> DesubscribeManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
+        Task<bool> DesubscribeManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
+
+        #endregion
 
         #region Shadow stack
 
@@ -356,14 +372,16 @@
         /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
         /// </summary>
         /// <returns></returns>
-        IEnumerator<TID> EnumerateIDs();
+        IEnumerator<TID> EnumerateIDs(CancellationToken token = default);
         /// <summary>
         /// Enumerates <typeparamref name="TID"/>s of active <typeparamref name="TModel"/>s async.
         /// Excluding shadow.
         /// Every modification of this <see cref="IModelPool{TModel, TID}"/> will crush this enumerator
         /// </summary>
         /// <returns></returns>
-        IAsyncEnumerator<TID> EnumerateIDsAsync();
+        IAsyncEnumerator<TID> EnumerateIDsAsync(CancellationToken token = default);
+
+        IEnumerator<TID> GetEnumerator(CancellationToken token = default);
 
         #endregion
     }

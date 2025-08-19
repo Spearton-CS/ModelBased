@@ -12,9 +12,10 @@ namespace ModelBased.Collections.Generic
         protected IPoolShadowStack<TModel, TID> shadowStack;
         protected SemaphoreSlim semaphore = new(1, 1);
         
+        protected ModelPool() { }
         public ModelPool(int shadowStackCapacity = 0)
         {
-            
+            shadowStack = new PoolShadowStack<TModel, TID>(shadowStackCapacity);
         }
 
         #region Properties
@@ -275,19 +276,188 @@ namespace ModelBased.Collections.Generic
 
         #endregion
 
-        #region Enumeration
+        #region Subscribe/Desubscribe
 
-        public virtual IEnumerator<TID> EnumerateIDs()
+        public virtual int Subscribe(TModel model, CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
 
-        public virtual async IAsyncEnumerator<TID> EnumerateIDsAsync()
+        public virtual int Subscribe(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<int> SubscribeAsync(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<int> SubscribeAsync(TModel model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<int> SubscribeMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<int> SubscribeMany(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool SubscribeManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool SubscribeManyIgnore(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> SubscribeManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> SubscribeManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> SubscribeManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> SubscribeManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual int Desubscribe(TModel model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual int Desubscribe(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<int> DesubscribeAsync(TModel model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<int> DesubscribeAsync(TID id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<int> DesubscribeMany(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerable<int> DesubscribeMany(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool DesubscribeManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual bool DesubscribeManyIgnore(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region Enumeration
+
+        public virtual IEnumerator<TID> EnumerateIDs(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual async IAsyncEnumerator<TID> EnumerateIDsAsync(CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
 
         public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        {
+            throw new NotImplementedException();
+        }
+
+        public virtual IEnumerator<TID> GetEnumerator(CancellationToken token = default)
         {
             throw new NotImplementedException();
         }
