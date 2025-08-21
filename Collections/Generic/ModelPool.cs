@@ -11,7 +11,7 @@ namespace ModelBased.Collections.Generic
     {
         protected IPoolActiveStack<TModel, TID> activeStack = [];
         protected IPoolShadowStack<TModel, TID> shadowStack;
-        protected SemaphoreSlim semaphore = new(1, 1);
+        protected SemaphoreSlim semaphore = new(1, 1); //We must do other logic, where we don't use this semaphore, only use active and shadow stack
         protected ulong version = 0;
         
         protected ModelPool() { }
@@ -237,6 +237,8 @@ namespace ModelBased.Collections.Generic
 
         #region Modify
 
+        #region Single
+
         /// <inheritdoc/>
         public virtual bool Modify<TUpdateableModel>(TID id, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
@@ -431,6 +433,10 @@ namespace ModelBased.Collections.Generic
                 semaphore.Release();
             }
         }
+
+        #endregion
+
+        #region Many
 
         /// <inheritdoc/>
         public virtual IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
@@ -807,6 +813,10 @@ namespace ModelBased.Collections.Generic
             }
         }
 
+        #endregion
+
+        #region Many ignore
+
         /// <inheritdoc/>
         public virtual bool ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
@@ -888,29 +898,311 @@ namespace ModelBased.Collections.Generic
         public virtual async Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                foreach ((TID ID, TUpdateableModel Mod) idWithMod in idWithMods)
+                {
+                    var (_, Model) = await activeStack.TryRefAsync(idWithMod.ID, token);
+                    if (Model is not null)
+                    {
+                        try
+                        {
+                            if (Model is TUpdateableModel upd)
+                                upd.Update(idWithMod.Mod, token);
+                            else
+                                throw new InvalidCastException($"Model with id '{idWithMod.ID}' isn't {nameof(TUpdateableModel)}");
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(Model, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual async Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                await foreach ((TID ID, TUpdateableModel Mod) idWithMod in idWithMods.WithCancellation(token))
+                {
+                    var (_, Model) = activeStack.TryRef(idWithMod.ID, token);
+                    if (Model is not null)
+                    {
+                        try
+                        {
+                            if (Model is TUpdateableModel upd)
+                                upd.Update(idWithMod.Mod, token);
+                            else
+                                throw new InvalidCastException($"Model with id '{idWithMod.ID}' isn't {nameof(TUpdateableModel)}");
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(Model, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual async Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                foreach ((TUpdateableModel Src, TUpdateableModel Mod) srcWithMod in srcWithMods)
+                {
+                    int refs = await activeStack.TryRefAsync(srcWithMod.Src, token);
+                    if (refs > 0)
+                    {
+                        try
+                        {
+                            srcWithMod.Src.Update(srcWithMod.Mod, token);
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(srcWithMod.Src, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
         public virtual async Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                await foreach ((TUpdateableModel Src, TUpdateableModel Mod) srcWithMod in srcWithMods.WithCancellation(token))
+                {
+                    int refs = await activeStack.TryRefAsync(srcWithMod.Src, token);
+                    if (refs > 0)
+                    {
+                        try
+                        {
+                            srcWithMod.Src.Update(srcWithMod.Mod, token);
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(srcWithMod.Src, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
+
+        /// <inheritdoc/>
+        public virtual async Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
+            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                foreach ((TID ID, TUpdateableModel Mod) idWithMod in idWithMods)
+                {
+                    var (_, Model) = await activeStack.TryRefAsync(idWithMod.ID, token);
+                    if (Model is not null)
+                    {
+                        try
+                        {
+                            if (Model is TUpdateableModel upd)
+                                await upd.UpdateAsync(idWithMod.Mod, token);
+                            else
+                                throw new InvalidCastException($"Model with id '{idWithMod.ID}' isn't {nameof(TUpdateableModel)}");
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(Model, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
+            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                await foreach ((TID ID, TUpdateableModel Mod) idWithMod in idWithMods.WithCancellation(token))
+                {
+                    var (_, Model) = await activeStack.TryRefAsync(idWithMod.ID, token);
+                    if (Model is not null)
+                    {
+                        try
+                        {
+                            if (Model is TUpdateableModel upd)
+                                await upd.UpdateAsync(idWithMod.Mod, token);
+                            else
+                                throw new InvalidCastException($"Model with id '{idWithMod.ID}' isn't {nameof(TUpdateableModel)}");
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(Model, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                foreach ((TUpdateableModel Src, TUpdateableModel Mod) srcWithMod in srcWithMods)
+                {
+                    int refs = await activeStack.TryRefAsync(srcWithMod.Src, token);
+                    if (refs > 0)
+                    {
+                        try
+                        {
+                            await srcWithMod.Src.UpdateAsync(srcWithMod.Mod, token);
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(srcWithMod.Src, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        /// <inheritdoc/>
+        public virtual async Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
+        {
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                bool result = true;
+                await foreach ((TUpdateableModel Src, TUpdateableModel Mod) srcWithMod in srcWithMods.WithCancellation(token))
+                {
+                    int refs = await activeStack.TryRefAsync(srcWithMod.Src, token);
+                    if (refs > 0)
+                    {
+                        try
+                        {
+                            await srcWithMod.Src.UpdateAsync(srcWithMod.Mod, token);
+                        }
+                        finally
+                        {
+                            await activeStack.TryUnrefAsync(srcWithMod.Src, default);
+                        }
+                    }
+                    else
+                        result = false;
+
+                    token.ThrowIfCancellationRequested();
+                }
+
+                return result;
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        #endregion
 
         #endregion
 
