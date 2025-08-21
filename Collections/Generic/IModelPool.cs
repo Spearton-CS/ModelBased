@@ -423,7 +423,7 @@
         /// <returns></returns>
         IAsyncEnumerator<TID> EnumerateIDsAsync(CancellationToken token = default);
 
-        IEnumerator<TID> GetEnumerator(CancellationToken token = default);
+        IEnumerator<TModel> GetEnumerator(CancellationToken token = default);
 
         #endregion
     }

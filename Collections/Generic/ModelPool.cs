@@ -12,7 +12,7 @@ namespace ModelBased.Collections.Generic
         protected IPoolActiveStack<TModel, TID> activeStack = [];
         protected IPoolShadowStack<TModel, TID> shadowStack;
         protected SemaphoreSlim semaphore = new(1, 1); //We must do other logic, where we don't use this semaphore, only use active and shadow stack
-        protected ulong version = 0;
+        protected ulong version = 0; //We need this ulong? I guess no, bc active and shadow stack have it already
         
         protected ModelPool() { }
         public ModelPool(int shadowStackCapacity = 20)
@@ -1517,33 +1517,38 @@ namespace ModelBased.Collections.Generic
         #region Enumeration
 
         /// <inheritdoc/>
-        public virtual IEnumerator<TID> EnumerateIDs(CancellationToken cancellationToken = default)
+        public virtual IEnumerator<TID> EnumerateIDs(CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            using var en = activeStack.GetEnumerator(token);
+            while (en.MoveNext())
+                yield return en.Current.ID;
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerator<TID> EnumerateIDsAsync(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerator<TID> EnumerateIDsAsync(CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            await using var en = activeStack.GetAsyncEnumerator(token);
+            while (await en.MoveNextAsync())
+                yield return en.Current.ID;
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerator<TModel> GetAsyncEnumerator(CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            await using var en = activeStack.GetAsyncEnumerator(token);
+            while (await en.MoveNextAsync())
+                yield return en.Current;
         }
 
-        public virtual IEnumerator<TID> GetEnumerator(CancellationToken token = default)
+        public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
         {
-            throw new NotImplementedException();
+            using var en = activeStack.GetEnumerator(token);
+            while (en.MoveNext())
+                yield return en.Current;
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerator<TModel> GetEnumerator()
-        {
-            throw new NotImplementedException();
-        }
+        public virtual IEnumerator<TModel> GetEnumerator() => GetEnumerator(default);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 

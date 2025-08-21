@@ -513,6 +513,10 @@ namespace ModelBased.Collections.Generic
 
         #region Searching
 
+
+
+        IEnumerator<TModel> GetEnumerator(CancellationToken token = default);
+
         /// <summary>
         /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
         /// </summary>
