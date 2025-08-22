@@ -91,14 +91,14 @@ namespace ModelBased.Collections.Generic
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
-        TModel? Pop(TID id, CancellationToken token = default);
+        TModel? TryPop(TID id, CancellationToken token = default);
         /// <summary>
         /// Pops <typeparamref name="TModel"/> with <paramref name="id"/> async.
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
-        Task<TModel?> PopAsync(TID id, CancellationToken token = default);
+        Task<TModel?> TryPopAsync(TID id, CancellationToken token = default);
 
         /// <summary>
         /// Pops <typeparamref name="TModel"/>s with <paramref name="ids"/>.
@@ -109,7 +109,7 @@ namespace ModelBased.Collections.Generic
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
-        IEnumerable<TModel?> PopMany(IEnumerable<TID> ids, CancellationToken token = default);
+        IEnumerable<TModel?> TryPopMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Pops <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
         /// You must enumerate all returns
@@ -119,7 +119,7 @@ namespace ModelBased.Collections.Generic
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
-        IAsyncEnumerable<TModel?> PopManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        IAsyncEnumerable<TModel?> TryPopManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Pops <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
         /// You must enumerate all returns
@@ -129,7 +129,7 @@ namespace ModelBased.Collections.Generic
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
-        IAsyncEnumerable<TModel?> PopManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
+        IAsyncEnumerable<TModel?> TryPopManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         #endregion
 

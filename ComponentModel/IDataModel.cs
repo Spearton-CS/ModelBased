@@ -10,11 +10,24 @@
         where TSelf : notnull, IDataModel<TSelf, TID>
     {
         /// <summary>
+        /// True if <see cref="FactoryAsync(TID, CancellationToken)"/> will work.
+        /// </summary>
+        abstract static bool SupportsAsyncFactory { get; }
+        /// <summary>
         /// Static factory-function. As default used by <see cref="Collections.Generic.IModelPool{TModel, TID}"/>
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="token"></param>
         /// <returns></returns>
-        abstract static TSelf Factory(TID id);
+        abstract static TSelf Factory(TID id, CancellationToken token = default);
+        /// <summary>
+        /// Static factory-function. As default used by <see cref="Collections.Generic.IModelPool{TModel, TID}"/>.
+        /// Works only when <see cref="SupportsAsyncFactory"/>, otherwise <see cref="NotSupportedException"/>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        abstract static Task<TSelf> FactoryAsync(TID id, CancellationToken token = default);
     }
     /// <summary>
     /// Contract for DataModel.

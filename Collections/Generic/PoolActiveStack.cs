@@ -1329,7 +1329,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual int GetRefs(TID id, CancellationToken token = default)
+        public virtual int TryGetRefs(TID id, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
@@ -1344,7 +1344,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<int> GetRefsAsync(TID id, CancellationToken token = default)
+        public virtual async Task<int> TryGetRefsAsync(TID id, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
@@ -1359,7 +1359,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerable<int> GetRefsMany(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual IEnumerable<int> TryGetRefsMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
@@ -1375,7 +1375,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> GetRefsManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryGetRefsManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
@@ -1391,7 +1391,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> GetRefsManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryGetRefsManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);

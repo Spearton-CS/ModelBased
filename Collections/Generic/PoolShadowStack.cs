@@ -278,7 +278,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual TModel? Pop(TID id, CancellationToken token = default)
+        public virtual TModel? TryPop(TID id, CancellationToken token = default)
         {
             if (models is not null && models.Length > 0)
             {
@@ -298,7 +298,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<TModel?> PopAsync(TID id, CancellationToken token = default)
+        public virtual async Task<TModel?> TryPopAsync(TID id, CancellationToken token = default)
         {
             if (models is not null && models.Length > 0)
             {
@@ -318,7 +318,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerable<TModel?> PopMany(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual IEnumerable<TModel?> TryPopMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
             if (models is not null && models.Length > 0)
             {
@@ -340,7 +340,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<TModel?> PopManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<TModel?> TryPopManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
             if (models is not null && models.Length > 0)
             {
@@ -362,7 +362,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<TModel?> PopManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<TModel?> TryPopManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
             if (models is not null && models.Length > 0)
             {

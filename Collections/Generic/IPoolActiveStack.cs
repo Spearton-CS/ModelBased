@@ -475,45 +475,43 @@ namespace ModelBased.Collections.Generic
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
-        void TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
+        bool TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/>.
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        void TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
+        bool TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
-        Task TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/> async.
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        Task TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
+        Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
 
         /// <summary>
         /// Tries to unref models with <paramref name="ids"/> async.
         /// </summary>
         /// <param name="ids"></param>
         /// <param name="token"></param>
-        Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
+        Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Tries to unref <paramref name="models"/> async.
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+        Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
 
         #endregion
 
         #region Searching
-
-
 
         IEnumerator<TModel> GetEnumerator(CancellationToken token = default);
 
@@ -569,14 +567,14 @@ namespace ModelBased.Collections.Generic
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns>True, if contains</returns>
-        int GetRefs(TID id, CancellationToken token = default);
+        int TryGetRefs(TID id, CancellationToken token = default);
         /// <summary>
         /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> exist
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
         /// <returns>True, if contains</returns>
-        Task<int> GetRefsAsync(TID id, CancellationToken token = default);
+        Task<int> TryGetRefsAsync(TID id, CancellationToken token = default);
 
         /// <summary>
         /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
@@ -587,7 +585,7 @@ namespace ModelBased.Collections.Generic
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>True, if contains</returns>
-        IEnumerable<int> GetRefsMany(IEnumerable<TID> ids, CancellationToken token = default);
+        IEnumerable<int> TryGetRefsMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
         /// You must enumerate all returns
@@ -597,7 +595,7 @@ namespace ModelBased.Collections.Generic
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>True, if contains</returns>
-        IAsyncEnumerable<int> GetRefsManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        IAsyncEnumerable<int> TryGetRefsManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> exist
         /// You must enumerate all returns
@@ -607,7 +605,7 @@ namespace ModelBased.Collections.Generic
         /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns>True, if contains</returns>
-        IAsyncEnumerable<int> GetRefsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
+        IAsyncEnumerable<int> TryGetRefsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         #endregion
 

@@ -105,7 +105,7 @@ namespace MainTests
         public void _03RemoveSync()
         {
             Debug.WriteLine("Remove 1 by sync:");
-            TestDataModel? firstModel = stack.Pop(0);
+            TestDataModel? firstModel = stack.TryPop(0);
             if (firstModel is not null && firstModel.ID == 0 && firstModel.Data == "ADD_SYNC_0")
                 Debug.WriteLine("Equal");
             else
@@ -115,7 +115,7 @@ namespace MainTests
             int many = (maxId - 1) / 2;
             bool allEqual = true;
             Debug.WriteLine($"Remove {many} by sync:");
-            foreach (var model in stack.PopMany(EnumIds1(many)))
+            foreach (var model in stack.TryPopMany(EnumIds1(many)))
             {
                 if (model is null || model.ID != i || model.Data != $"ADD_SYNC_MANY:{i}")
                 {
@@ -131,7 +131,7 @@ namespace MainTests
         public async Task _04RemoveAsync()
         {
             Debug.WriteLine("Remove 1 by async:");
-            TestDataModel? firstModel = await stack.PopAsync(++i);
+            TestDataModel? firstModel = await stack.TryPopAsync(++i);
             if (firstModel is not null && firstModel.ID == i && firstModel.Data == "ADD_ASYNC_0")
                 Debug.WriteLine("Equal");
             else
@@ -141,7 +141,7 @@ namespace MainTests
             int many = maxId - i;
             bool allEqual = true;
             Debug.WriteLine($"Remove {many} by async:");
-            await foreach (var model in stack.PopManyAsync(EnumIds2(many, i)))
+            await foreach (var model in stack.TryPopManyAsync(EnumIds2(many, i)))
             {
                 if (model is null || model.ID != i || model.Data != $"ADD_ASYNC_MANY:{i}")
                 {
