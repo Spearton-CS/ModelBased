@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 namespace ModelBased.Collections.Generic
 {
     using ComponentModel;
+    using System.Reflection;
 
     public class ModelPool<TModel, TID> : IModelPool<ModelPool<TModel, TID>, TModel, TID>
         where TID : notnull
@@ -937,7 +938,9 @@ namespace ModelBased.Collections.Generic
                     return (model, await activeStack.AddAsync(model, 1, token));
                 else
                 {
-                    model = TModel.Factory(id, token);
+                    model = TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token);
                     return (model, await activeStack.AddAsync(model, 1, token));
                 }
             }
@@ -986,7 +989,9 @@ namespace ModelBased.Collections.Generic
                         yield return (model, await activeStack.AddAsync(model, 1, token));
                     else
                     {
-                        model = TModel.Factory(id, token);
+                        model = TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token);
                         yield return (model, await activeStack.AddAsync(model, 1, token));
                     }
                 }
@@ -1011,7 +1016,9 @@ namespace ModelBased.Collections.Generic
                         yield return (model, await activeStack.AddAsync(model, 1, token));
                     else
                     {
-                        model = TModel.Factory(id, token);
+                        model = TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token);
                         yield return (model, await activeStack.AddAsync(model, 1, token));
                     }
                 }
@@ -1206,196 +1213,448 @@ namespace ModelBased.Collections.Generic
         #region Ref/unref
 
         /// <inheritdoc/>
-        public virtual int Subscribe(TModel model, CancellationToken token = default)
+        public virtual int TryRef(TModel model, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                shadowStack.TryPop(model.ID, token);
+                return activeStack.Add(model, 1, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual int Subscribe(TID id, CancellationToken token = default)
+        public virtual int TryRef(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            semaphore.Wait(token);
+            try
+            {
+                TModel? model = shadowStack.TryPop(id, token);
+                if (model is null)
+                    return activeStack.Add(TModel.Factory(id, token), 1, token);
+                else
+                    return activeStack.Add(model, 1, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async Task<int> SubscribeAsync(TID id, CancellationToken token = default)
+        public virtual async Task<int> TryRefAsync(TID id, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                TModel? model = await shadowStack.TryPopAsync(id, token);
+                if (model is null)
+                    return await activeStack.AddAsync(TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token),
+                        1, token);
+                else
+                    return await activeStack.AddAsync(model, 1, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async Task<int> SubscribeAsync(TModel model, CancellationToken token = default)
+        public virtual async Task<int> TryRefAsync(TModel model, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await semaphore.WaitAsync(token);
+            try
+            {
+                await shadowStack.TryPopAsync(model.ID, token);
+                return await activeStack.AddAsync(model, 1, token);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerable<int> SubscribeMany(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual IEnumerable<int> TryRefMany(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            foreach (TModel model in models)
+            {
+                semaphore.Wait(token);
+                try
+                {
+                    shadowStack.TryPop(model.ID, token);
+                    yield return activeStack.Add(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public virtual IEnumerable<int> SubscribeMany(IEnumerable<TID> id, CancellationToken token = default)
+        public virtual IEnumerable<int> TryRefMany(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            foreach (TID id in ids)
+            {
+                semaphore.Wait(token);
+                try
+                {
+                    TModel? model = shadowStack.TryPop(id, token);
+                    if (model is null)
+                        yield return activeStack.Add(TModel.Factory(id, token), 1, token);
+                    else
+                        yield return activeStack.Add(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public virtual bool SubscribeManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual bool TryRefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            foreach (TModel model in models)
+            {
+                semaphore.Wait(token);
+                try
+                {
+                    shadowStack.TryPop(model.ID, token);
+                    activeStack.Add(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>
-        public virtual bool SubscribeManyIgnore(IEnumerable<TID> id, CancellationToken token = default)
+        public virtual bool TryRefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            foreach (TID id in ids)
+            {
+                semaphore.Wait(token);
+                try
+                {
+                    TModel? model = shadowStack.TryPop(id, token);
+                    if (model is null)
+                        activeStack.Add(TModel.Factory(id, token), 1, token);
+                    else
+                        activeStack.Add(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, [EnumeratorCancellation] CancellationToken token = default)
         {
-            yield break; //We must use it, bc compiler don't allow this method without yield
+            token.ThrowIfCancellationRequested();
+            foreach (TModel model in models)
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    await shadowStack.TryPopAsync(model.ID, token);
+                    yield return await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            yield break; //We must use it, bc compiler don't allow this method without yield
+            token.ThrowIfCancellationRequested();
+            foreach (TID id in ids)
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    TModel? model = await shadowStack.TryPopAsync(id, token);
+                    if (model is null)
+                        yield return await activeStack.AddAsync(TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token), 1, token);
+                    else
+                        yield return await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, [EnumeratorCancellation] CancellationToken token = default)
         {
-            yield break; //We must use it, bc compiler don't allow this method without yield
+            token.ThrowIfCancellationRequested();
+            await foreach (TModel model in models.WithCancellation(token))
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    await shadowStack.TryPopAsync(model.ID, token);
+                    yield return await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> SubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        public virtual async IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TID> ids, [EnumeratorCancellation] CancellationToken token = default)
         {
-            yield break; //We must use it, bc compiler don't allow this method without yield
+            token.ThrowIfCancellationRequested();
+            await foreach (TID id in ids.WithCancellation(token))
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    TModel? model = await shadowStack.TryPopAsync(id, token);
+                    if (model is null)
+                        yield return await activeStack.AddAsync(TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token), 1, token);
+                    else
+                        yield return await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> SubscribeManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        public virtual async Task<bool> TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            foreach (TModel model in models)
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    await shadowStack.TryPopAsync(model.ID, token);
+                    await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> SubscribeManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default)
+        public virtual async Task<bool> TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            foreach (TID id in ids)
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    TModel? model = await shadowStack.TryPopAsync(id, token);
+                    if (model is null)
+                        await activeStack.AddAsync(TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token), 1, token);
+                    else
+                        await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> SubscribeManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        public virtual async Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await foreach (TModel model in models.WithCancellation(token))
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    await shadowStack.TryPopAsync(model.ID, token);
+                    await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+
+            return true;
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> SubscribeManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        public virtual async Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
         {
-            throw new NotImplementedException();
+            token.ThrowIfCancellationRequested();
+            await foreach (TID id in ids.WithCancellation(token))
+            {
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    TModel? model = await shadowStack.TryPopAsync(id, token);
+                    if (model is null)
+                        await activeStack.AddAsync(TModel.SupportsAsyncFactory
+                        ? await TModel.FactoryAsync(id, token)
+                        : TModel.Factory(id, token), 1, token);
+                    else
+                        await activeStack.AddAsync(model, 1, token);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+
+            return true;
         }
 
-        /// <inheritdoc/>
-        public virtual int Desubscribe(TModel model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual int TryUnref(TModel model, CancellationToken token = default)
+        //{
+        //    token.ThrowIfCancellationRequested();
+        //    semaphore.Wait(token);
+        //    try
+        //    {
+                
+        //    }
+        //    finally
+        //    {
+        //        semaphore.Release();
+        //    }
+        //}
 
-        /// <inheritdoc/>
-        public virtual int Desubscribe(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual int TryUnref(TID id, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual async Task<int> DesubscribeAsync(TModel model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual async Task<int> TryUnrefAsync(TModel model, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual async Task<int> DesubscribeAsync(TID id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual async Task<int> TryUnrefAsync(TID id, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual IEnumerable<int> DesubscribeMany(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual IEnumerable<int> TryUnrefMany(IEnumerable<TModel> models, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual IEnumerable<int> DesubscribeMany(IEnumerable<TID> id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual IEnumerable<int> TryUnrefMany(IEnumerable<TID> id, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual bool DesubscribeManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual bool TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual bool DesubscribeManyIgnore(IEnumerable<TID> id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual bool TryUnrefManyIgnore(IEnumerable<TID> id, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TModel> model, CancellationToken token = default)
-        {
-            yield break; //We must use it, bc compiler don't allow this method without yield
-        }
+        ///// <inheritdoc/>
+        //public virtual async IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        //{
+        //    yield break; //We must use it, bc compiler don't allow this method without yield
+        //}
 
-        /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IEnumerable<TID> id, CancellationToken token = default)
-        {
-            yield break; //We must use it, bc compiler don't allow this method without yield
-        }
+        ///// <inheritdoc/>
+        //public virtual async IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TID> id, CancellationToken token = default)
+        //{
+        //    yield break; //We must use it, bc compiler don't allow this method without yield
+        //}
 
-        /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
-        {
-            yield break; //We must use it, bc compiler don't allow this method without yield
-        }
+        ///// <inheritdoc/>
+        //public virtual async IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        //{
+        //    yield break; //We must use it, bc compiler don't allow this method without yield
+        //}
 
-        /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<int> DesubscribeManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
-        {
-            yield break; //We must use it, bc compiler don't allow this method without yield
-        }
+        ///// <inheritdoc/>
+        //public virtual async IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        //{
+        //    yield break; //We must use it, bc compiler don't allow this method without yield
+        //}
 
-        /// <inheritdoc/>
-        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual async Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual async Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual async Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        /// <inheritdoc/>
-        public virtual async Task<bool> DesubscribeManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
-        {
-            throw new NotImplementedException();
-        }
+        ///// <inheritdoc/>
+        //public virtual async Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         #endregion
 

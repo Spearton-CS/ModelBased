@@ -229,10 +229,10 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        IEnumerable<int> TryRefMany(IEnumerable<TID> id, CancellationToken token = default);
+        IEnumerable<int> TryRefMany(IEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
         /// 
@@ -244,98 +244,10 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        bool TryRefManyIgnore(IEnumerable<TID> id, CancellationToken token = default);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TID> id, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryRefManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryRefManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        int TryUnref(TModel model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        int TryUnref(TID id, CancellationToken token = default);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<int> TryUnrefAsync(TModel model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<int> TryUnrefAsync(TID id, CancellationToken token = default);
+        bool TryRefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
         /// 
@@ -343,14 +255,28 @@
         /// <param name="models"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        IEnumerable<int> TryUnrefMany(IEnumerable<TModel> models, CancellationToken token = default);
+        IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, CancellationToken token = default);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        IEnumerable<int> TryUnrefMany(IEnumerable<TID> id, CancellationToken token = default);
+        IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="models"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
         /// 
@@ -358,72 +284,146 @@
         /// <param name="models"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        bool TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
+        Task<bool> TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
+        /// <param name="ids"></param>
         /// <param name="token"></param>
         /// <returns></returns>
-        bool TryUnrefManyIgnore(IEnumerable<TID> id, CancellationToken token = default);
+        Task<bool> TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="models"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ids"></param>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TID> id, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //int TryUnref(TModel models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //int TryUnref(TID ids, CancellationToken token = default);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TID> id, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> model, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> id, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //Task<int> TryUnrefAsync(TModel models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //Task<int> TryUnrefAsync(TID ids, CancellationToken token = default);
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //IEnumerable<int> TryUnrefMany(IEnumerable<TModel> models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //IEnumerable<int> TryUnrefMany(IEnumerable<TID> ids, CancellationToken token = default);
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //bool TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //bool TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
+
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="models"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="ids"></param>
+        ///// <param name="token"></param>
+        ///// <returns></returns>
+        //Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         #endregion
 
