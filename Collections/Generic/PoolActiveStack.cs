@@ -1122,14 +1122,18 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual void TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual bool TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
             try
             {
+                bool result = true;
                 foreach (TID id in ids)
-                    TryUnrefCore(id, default);
+                    if (TryUnrefCore(id, default).Refs < 0)
+                        result = false;
+
+                return result;
             }
             finally
             {
@@ -1138,14 +1142,18 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual void TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual bool TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             semaphore.Wait(token);
             try
             {
+                bool result = true;
                 foreach (TModel model in models)
-                    TryUnrefCore(model, default);
+                    if (TryUnrefCore(model, default) < 0)
+                        result = false;
+
+                return result;
             }
             finally
             {
@@ -1154,14 +1162,18 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
             {
+                bool result = true;
                 foreach (TID id in ids)
-                    TryUnrefCore(id, default);
+                    if (TryUnrefCore(id, default).Refs < 0)
+                        result = false;
+
+                return result;
             }
             finally
             {
@@ -1170,14 +1182,18 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
             {
+                bool result = true;
                 foreach (TModel model in models)
-                    TryUnrefCore(model, default);
+                    if (TryUnrefCore(model, default) < 0)
+                        result = false;
+
+                return result;
             }
             finally
             {
@@ -1186,14 +1202,18 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
+        public virtual async Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
             {
+                bool result = true;
                 await foreach (TID id in ids)
-                    TryUnrefCore(id, default);
+                    if (TryUnrefCore(id, default).Refs < 0)
+                        result = false;
+
+                return result;
             }
             finally
             {
@@ -1202,14 +1222,18 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
+        public virtual async Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default)
         {
             token.ThrowIfCancellationRequested();
             await semaphore.WaitAsync(token);
             try
             {
+                bool result = true;
                 await foreach (TModel model in models)
-                    TryUnrefCore(model, default);
+                    if (TryUnrefCore(model, default) < 0)
+                        result = false;
+
+                return result;
             }
             finally
             {
