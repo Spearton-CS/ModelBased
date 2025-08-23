@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 namespace ModelBased.Collections.Generic
 {
     using ComponentModel;
-    using System.Reflection;
 
     public class ModelPool<TModel, TID> : IModelPool<ModelPool<TModel, TID>, TModel, TID>
         where TID : notnull

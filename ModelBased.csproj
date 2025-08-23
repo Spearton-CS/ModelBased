@@ -33,8 +33,4 @@ That library uses less memory than default .NET collections</Description>
     <None Remove="Tests\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
-
 </Project>

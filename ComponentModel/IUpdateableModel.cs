@@ -20,7 +20,7 @@
     /// </summary>
     /// <typeparam name="TSelf"></typeparam>
     /// <typeparam name="TID"></typeparam>
-    public interface IUpdateableModel<TSelf, TID> : IUpdateableModel<TID>
+    public interface IUpdateableModel<TSelf, TID> : IUpdateableModel<TID>, IDataModel<TSelf, TID>
         where TID : notnull
         where TSelf : IUpdateableModel<TSelf, TID>
     {
@@ -52,7 +52,7 @@
     /// </summary>
     /// <typeparam name="TSelf"></typeparam>
     /// <typeparam name="TID"></typeparam>
-    public interface IAsyncUpdateableModel<TSelf, TID> : IAsyncUpdateableModel<TID>
+    public interface IAsyncUpdateableModel<TSelf, TID> : IAsyncUpdateableModel<TID>, IDataModel<TSelf, TID>
         where TID : notnull
         where TSelf : IAsyncUpdateableModel<TSelf, TID>
     {
