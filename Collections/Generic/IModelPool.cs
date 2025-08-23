@@ -121,32 +121,12 @@
 
         #region Modify
 
-        public bool Modify<TUpdateableModel>(TID id, TUpdateableModel mod, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyAsync<TUpdateableModel>(TID id, TUpdateableModel mod, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-
-        public Task<bool> ModifyAsyncA<TUpdateableModel>(TID id, TUpdateableModel mod, CancellationToken token = default)
-            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-
         public bool Modify<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
         public Task<bool> ModifyAsync<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
 
         public Task<bool> ModifyAsyncA<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
-            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-
-        public IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-
-        public IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-        public IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
 
         public IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
@@ -159,18 +139,6 @@
         public IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
         public IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
-            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-
-        public bool ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IUpdateableModel<TID>, TModel;
-
-        public Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
-            where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TID, TUpdateableModel)> idWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
 
         public bool ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
@@ -199,21 +167,6 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        int TryRef(TID id, CancellationToken token = default);
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<int> TryRefAsync(TID id, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
         /// <returns></returns>
@@ -226,13 +179,6 @@
         /// <param name="token"></param>
         /// <returns></returns>
         IEnumerable<int> TryRefMany(IEnumerable<TModel> models, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IEnumerable<int> TryRefMany(IEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
         /// 
@@ -241,13 +187,6 @@
         /// <param name="token"></param>
         /// <returns></returns>
         bool TryRefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        bool TryRefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
         /// 
@@ -259,24 +198,10 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
         /// 
@@ -288,24 +213,10 @@
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryRefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
         /// <returns></returns>
         Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="ids"></param>
-        /// <param name="token"></param>
-        /// <returns></returns>
-        Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         ///// <summary>
         ///// 
