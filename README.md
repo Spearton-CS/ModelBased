@@ -26,5 +26,5 @@
 ---
 ## Where can download?
 
-* [Nuget](https://nuget.org "ModelBased")
+* [Nuget](https://www.nuget.org/packages/ModelBased/1.0.0#readme-body-tab "ModelBased")
 * [Github](https://github.com/Spearton-CS/ModelBased "ModelBased")
