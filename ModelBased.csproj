@@ -19,7 +19,7 @@ That library uses less memory than default .NET collections</Description>
     <PackageReleaseNotes>First release :D</PackageReleaseNotes>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <Copyright></Copyright>
+    <Copyright>https://github.com/Spearton-CS</Copyright>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>
