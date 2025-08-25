@@ -14,7 +14,7 @@
         #region Rent/Return
 
         /// <summary>
-        /// Rents <typeparamref name="TModel"/> with <paramref name="id"/>. If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>
+        /// Rents <typeparamref name="TModel"/> with <paramref name="id"/>. If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory"/>
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -22,7 +22,7 @@
         (TModel Model, int Refs) Rent(TID id, CancellationToken token = default);
         /// <summary>
         /// Rents <typeparamref name="TModel"/> with <paramref name="id"/> async.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory"/>.
         /// It can be canceled
         /// </summary>
         /// <param name="id"></param>
@@ -32,7 +32,7 @@
 
         /// <summary>
         /// Rents many <typeparamref name="TModel"/>s with <paramref name="ids"/>.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory"/>.
         /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
@@ -41,7 +41,7 @@
         IEnumerable<(TModel Model, int Refs)> RentMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Rents many <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory"/>.
         /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
@@ -50,7 +50,7 @@
         IAsyncEnumerable<(TModel Model, int Refs)> RentManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
         /// Rents many <typeparamref name="TModel"/>s with <paramref name="ids"/> async.
-        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory(TID)"/>.
+        /// If its not exist <see cref="IModelPool{TModel, TID}"/> will create it through <see cref="IDataModel{TSelf, TID}.Factory"/>.
         /// Can be canceled
         /// </summary>
         /// <param name="ids"></param>
@@ -121,36 +121,143 @@
 
         #region Modify
 
-        public bool Modify<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify <paramref name="src"/> using <paramref name="mod"/>. Can be canceled
+        /// As default, ID of <paramref name="mod"/> must be equal to <paramref name="src"/>'s ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="src"></param>
+        /// <param name="mod"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public bool TryModify<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyAsync<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify <paramref name="src"/> using <paramref name="mod"/> async. Can be canceled
+        /// As default, ID of <paramref name="mod"/> must be equal to <paramref name="src"/>'s ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="src"></param>
+        /// <param name="mod"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public Task<bool> TryModifyAsync<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
 
-        public Task<bool> ModifyAsyncA<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify <paramref name="src"/> using <paramref name="mod"/> async. Can be canceled
+        /// As default, ID of <paramref name="mod"/> must be equal to <paramref name="src"/>'s ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="src"></param>
+        /// <param name="mod"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public Task<bool> TryModifyAsyncA<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
 
-        public IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public IEnumerable<bool> TryModifyMany<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public IAsyncEnumerable<bool> TryModifyManyAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public IAsyncEnumerable<bool> TryModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
 
-        public IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public IAsyncEnumerable<bool> TryModifyManyAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-        public IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if modified</returns>
+        public IAsyncEnumerable<bool> TryModifyManyAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
 
-        public bool ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if all modified</returns>
+        public bool TryModifyManyIgnore<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if all modified</returns>
+        public Task<bool> TryModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if all modified</returns>
+        public Task<bool> TryModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel;
 
-        public Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if all modified</returns>
+        public Task<bool> TryModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
-        public Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        /// <summary>
+        /// Tries to modify sourceModels using modifyModels async. Can be canceled
+        /// As default, ID of modifyModel must be equal to sourceModel's ID
+        /// </summary>
+        /// <typeparam name="TUpdateableModel"></typeparam>
+        /// <param name="srcWithMods"></param>
+        /// <param name="token"></param>
+        /// <returns>True, if all modified</returns>
+        public Task<bool> TryModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel;
 
         #endregion
@@ -158,183 +265,65 @@
         #region Ref/unref
 
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="model"/>. Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of refs or -1</returns>
         int TryRef(TModel model, CancellationToken token = default);
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="model"/> async. Can be canceled
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of refs or -1</returns>
         Task<int> TryRefAsync(TModel model, CancellationToken token = default);
-        
+
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="models"/>. Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of refs or -1</returns>
         IEnumerable<int> TryRefMany(IEnumerable<TModel> models, CancellationToken token = default);
 
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="models"/>. Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>True, if all <paramref name="models"/> have a new refs</returns>
         bool TryRefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
 
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="models"/> async. Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of refs or -1</returns>
         IAsyncEnumerable<int> TryRefManyAsync(IEnumerable<TModel> models, CancellationToken token = default);
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="models"/> async. Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>Count of refs or -1</returns>
         IAsyncEnumerable<int> TryRefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
 
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="models"/> async. Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>True, if all <paramref name="models"/> have a new refs</returns>
         Task<bool> TryRefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
         /// <summary>
-        /// 
+        /// Tries to ref <paramref name="models"/> async. Can be canceled
         /// </summary>
         /// <param name="models"></param>
         /// <param name="token"></param>
-        /// <returns></returns>
+        /// <returns>True, if all <paramref name="models"/> have a new refs</returns>
         Task<bool> TryRefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //int TryUnref(TModel models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //int TryUnref(TID ids, CancellationToken token = default);
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //Task<int> TryUnrefAsync(TModel models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //Task<int> TryUnrefAsync(TID ids, CancellationToken token = default);
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //IEnumerable<int> TryUnrefMany(IEnumerable<TModel> models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //IEnumerable<int> TryUnrefMany(IEnumerable<TID> ids, CancellationToken token = default);
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //bool TryUnrefManyIgnore(IEnumerable<TModel> models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //bool TryUnrefManyIgnore(IEnumerable<TID> ids, CancellationToken token = default);
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TModel> models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //IAsyncEnumerable<int> TryUnrefManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //IAsyncEnumerable<int> TryUnrefManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
-
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TModel> models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //Task<bool> TryUnrefManyIgnoreAsync(IEnumerable<TID> ids, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="models"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TModel> models, CancellationToken token = default);
-        ///// <summary>
-        ///// 
-        ///// </summary>
-        ///// <param name="ids"></param>
-        ///// <param name="token"></param>
-        ///// <returns></returns>
-        //Task<bool> TryUnrefManyIgnoreAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         #endregion
 
@@ -343,14 +332,12 @@
         /// <summary>
         /// Clears <see cref="IPoolShadowStack{TModel, TID}"/>
         /// </summary>
-        /// <param name="minOld">Minimal old of shadow model (its not time, its count of modification of shadow stack after that model)</param>
         /// <param name="token"></param>
         /// <returns>Count of cleaned shadow models (0-ref)</returns>
         int ClearShadow(CancellationToken token = default);
         /// <summary>
         /// Clears <see cref="IPoolShadowStack{TModel, TID}"/>. Can be canceled
         /// </summary>
-        /// <param name="minOld">Minimal old of shadow model (its not time, its count of modification of shadow stack after that model)</param>
         /// <param name="token"></param>
         /// <returns>Count of cleaned shadow models (0-ref)</returns>
         Task<int> ClearShadowAsync(CancellationToken token = default);
@@ -369,7 +356,7 @@
         #region Check
 
         /// <summary>
-        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent"/>).
         /// Excluding shadow models
         /// </summary>
         /// <param name="id"></param>
@@ -377,7 +364,7 @@
         /// <returns>True, if rented</returns>
         bool IsRented(TID id, CancellationToken token = default);
         /// <summary>
-        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent"/>).
         /// Excluding shadow models.
         /// Can be canceled
         /// </summary>
@@ -387,7 +374,7 @@
         Task<bool> IsRentedAsync(TID id, CancellationToken token = default);
 
         /// <summary>
-        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent"/>).
         /// Excluding shadow models
         /// </summary>
         /// <param name="ids"></param>
@@ -395,7 +382,7 @@
         /// <returns>True, if rented</returns>
         IEnumerable<bool> IsRentedMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
-        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent"/>).
         /// Excluding shadow models.
         /// Can be canceled
         /// </summary>
@@ -404,7 +391,7 @@
         /// <returns>True, if rented</returns>
         IAsyncEnumerable<bool> IsRentedManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
-        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent"/>).
         /// Excluding shadow models.
         /// Can be canceled
         /// </summary>
@@ -414,7 +401,7 @@
         IAsyncEnumerable<bool> IsRentedManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
         /// <summary>
-        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent"/>).
         /// Including shadow models
         /// </summary>
         /// <param name="id"></param>
@@ -422,7 +409,7 @@
         /// <returns>True, if contains</returns>
         bool Contains(TID id, CancellationToken token = default);
         /// <summary>
-        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check async, that <typeparamref name="TModel"/> with <paramref name="id"/> have a reference (called <see cref="Rent"/>).
         /// Including shadow models.
         /// Can be canceled
         /// </summary>
@@ -432,7 +419,7 @@
         Task<bool> ContainsAsync(TID id, CancellationToken token = default);
 
         /// <summary>
-        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent"/>).
         /// Including shadow models.
         /// Can be canceled
         /// </summary>
@@ -441,7 +428,7 @@
         /// <returns>True, if contains</returns>
         IEnumerable<bool> ContainsMany(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
-        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent"/>).
         /// Including shadow models.
         /// Can be canceled
         /// </summary>
@@ -450,7 +437,7 @@
         /// <returns>True, if contains</returns>
         IAsyncEnumerable<bool> ContainsManyAsync(IEnumerable<TID> ids, CancellationToken token = default);
         /// <summary>
-        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent(TID)"/>).
+        /// Check async, that <typeparamref name="TModel"/>s with <paramref name="ids"/> have a reference (called <see cref="Rent"/>).
         /// Including shadow models.
         /// Can be canceled
         /// </summary>
@@ -487,6 +474,11 @@
         /// <returns></returns>
         IAsyncEnumerator<TID> EnumerateIDsAsync(CancellationToken token = default);
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection. Can be canceled
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         IEnumerator<TModel> GetEnumerator(CancellationToken token = default);
 
         #endregion

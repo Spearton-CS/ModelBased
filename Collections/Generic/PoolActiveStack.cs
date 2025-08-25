@@ -2,6 +2,7 @@
 using System.Collections;
 using ModelBased.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace ModelBased.Collections.Generic
 {
@@ -10,6 +11,7 @@ namespace ModelBased.Collections.Generic
     /// </summary>
     /// <typeparam name="TModel"></typeparam>
     /// <typeparam name="TID"></typeparam>
+    [DebuggerDisplay("Count = {Count}, Capacity = {Capacity}")]
     public class PoolActiveStack<TModel, TID> : IPoolActiveStack<TModel, TID>
         where TID : notnull
         where TModel : notnull, IDataModel<TID>

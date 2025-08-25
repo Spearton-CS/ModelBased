@@ -198,6 +198,13 @@ namespace ModelBased.Collections.Generic
         /// <returns>True, if contains</returns>
         IAsyncEnumerable<bool> ContainsManyAsync(IAsyncEnumerable<TID> ids, CancellationToken token = default);
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection. Can be canceled
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
+        IEnumerator<TModel> GetEnumerator(CancellationToken token = default);
+
         #endregion
     }
 
@@ -206,12 +213,25 @@ namespace ModelBased.Collections.Generic
     /// </summary>
     public static class PoolShadowStackBuilder
     {
+        /// <summary>
+        /// Returns <see cref="PoolShadowStack{TModel, TID}.Empty"/>
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TID"></typeparam>
+        /// <returns></returns>
         public static IPoolShadowStack<TModel, TID> Create<TModel, TID>()
             where TID : notnull
             where TModel : notnull, IDataModel<TID>
         {
             return PoolShadowStack<TModel, TID>.Empty;
         }
+        /// <summary>
+        /// Creates <see cref="PoolShadowStack{TModel, TID}"/> with length <paramref name="models"/>.Length and copies it
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TID"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
         public static IPoolShadowStack<TModel, TID> Create<TModel, TID>(ReadOnlySpan<TModel> models)
             where TID : notnull
             where TModel : notnull, IDataModel<TID>

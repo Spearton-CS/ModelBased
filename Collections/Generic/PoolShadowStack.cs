@@ -1,11 +1,10 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace ModelBased.Collections.Generic
 {
-    using System.Threading.Tasks;
     using ModelBased.ComponentModel;
-    using System.Runtime.CompilerServices;
 
     /// <summary>
     /// Custom collection, called as 'ShadowStack', used by <see cref="ModelPool{TModel, TID}"/>.
@@ -24,7 +23,7 @@ namespace ModelBased.Collections.Generic
         /// </summary>
         protected (int Old, TModel Model)[]? models = null;
         /// <summary>
-        /// Count of modifications of <see cref="models"/>. Used by <see cref="GetEnumerator"/> to validate data between yield returns
+        /// Count of modifications of <see cref="models"/>. Used by <see cref="GetEnumerator()"/> to validate data between yield returns
         /// </summary>
         protected ulong version = 0;
         /// <summary>
@@ -74,8 +73,8 @@ namespace ModelBased.Collections.Generic
 
         #region Shared
 
-        /// <inheritdoc/>
 #pragma warning disable CS0618 // obsolete attribute ignoring
+        /// <inheritdoc/>
         public static PoolShadowStack<TModel, TID> Empty { get; } = new();
 #pragma warning restore CS0618 // obsolete attribute ignoring
 
@@ -96,6 +95,10 @@ namespace ModelBased.Collections.Generic
 
         #region Push
 
+        /// <summary>
+        /// Core for <see cref="Push"/>, <see cref="PushAsync"/>
+        /// </summary>
+        /// <param name="model"></param>
         protected virtual void PushCore(in TModel model)
         {
             for (int i = 0; i < models!.Length; i++)
@@ -250,6 +253,11 @@ namespace ModelBased.Collections.Generic
 
         #region Pop
 
+        /// <summary>
+        /// Core for <see cref="TryPop"/>, <see cref="TryPopAsync"/>
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         protected virtual TModel? PopCore(in TID id)
         {
             for (int i = 0; i < models!.Length; i++)
@@ -614,6 +622,7 @@ namespace ModelBased.Collections.Generic
             }
         }
 
+        /// <inheritdoc/>
         public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
         {
             token.ThrowIfCancellationRequested();

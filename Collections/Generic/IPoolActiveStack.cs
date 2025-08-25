@@ -513,6 +513,11 @@ namespace ModelBased.Collections.Generic
 
         #region Searching
 
+        /// <summary>
+        /// Returns an enumerator that iterates through the collection. Can be canceled
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>An enumerator that can be used to iterate through the collection.</returns>
         IEnumerator<TModel> GetEnumerator(CancellationToken token = default);
 
         /// <summary>
@@ -629,14 +634,30 @@ namespace ModelBased.Collections.Generic
         #endregion
     }
 
+    /// <summary>
+    /// CollectionBuilder for <see cref="IPoolShadowStack{TModel, TID}"/>
+    /// </summary>
     public static class PoolActiveStackBuilder
     {
+        /// <summary>
+        /// Returns new <see cref="PoolActiveStack{TModel, TID}"/>
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TID"></typeparam>
+        /// <returns></returns>
         public static IPoolActiveStack<TModel, TID> Create<TModel, TID>()
             where TID : notnull
             where TModel : notnull, IDataModel<TID>
         {
             return new PoolActiveStack<TModel, TID>();
         }
+        /// <summary>
+        /// Returns new <see cref="PoolActiveStack{TModel, TID}"/>, filled by <paramref name="models"/>
+        /// </summary>
+        /// <typeparam name="TModel"></typeparam>
+        /// <typeparam name="TID"></typeparam>
+        /// <param name="models"></param>
+        /// <returns></returns>
         public static IPoolActiveStack<TModel, TID> Create<TModel, TID>(ReadOnlySpan<TModel> models)
                     where TID : notnull
                     where TModel : notnull, IDataModel<TID>

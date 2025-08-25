@@ -1,20 +1,41 @@
 ﻿using System.Collections;
+using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace ModelBased.Collections.Generic
 {
     using ComponentModel;
 
+    /// <summary>
+    /// Pool of <typeparamref name="TModel"/>, which can be rented, returned and subscribed by <typeparamref name="TID"/>.
+    /// This one have <see cref="Shared"/> property
+    /// </summary>
+    /// <typeparam name="TModel"></typeparam>
+    /// <typeparam name="TID"></typeparam>
+    [DebuggerDisplay("Count = {Count}, ShadowCount = {ShadowCount}")]
     public class ModelPool<TModel, TID> : IModelPool<ModelPool<TModel, TID>, TModel, TID>
         where TID : notnull
         where TModel : IDataModel<TModel, TID>
     {
+        /// <summary>
+        /// 
+        /// </summary>
         protected IPoolActiveStack<TModel, TID> activeStack = [];
+        /// <summary>
+        /// 
+        /// </summary>
         protected IPoolShadowStack<TModel, TID> shadowStack;
+        /// <summary>
+        /// <see cref="SemaphoreSlim"/>, used to lock when we doing some atomical operations
+        /// </summary>
         protected SemaphoreSlim semaphore = new(1, 1);
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         protected ModelPool() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         public ModelPool(int shadowStackCapacity = 20)
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             shadowStack = new PoolShadowStack<TModel, TID>(shadowStackCapacity);
         }
@@ -143,7 +164,7 @@ namespace ModelBased.Collections.Generic
         #region Single
 
         /// <inheritdoc/>
-        public virtual bool Modify<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
+        public virtual bool TryModify<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -166,7 +187,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> ModifyAsync<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
+        public virtual async Task<bool> TryModifyAsync<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -189,7 +210,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> ModifyAsyncA<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
+        public virtual async Task<bool> TryModifyAsyncA<TUpdateableModel>(TUpdateableModel src, TUpdateableModel mod, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -216,7 +237,7 @@ namespace ModelBased.Collections.Generic
         #region Many
 
         /// <inheritdoc/>
-        public virtual IEnumerable<bool> ModifyMany<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        public virtual IEnumerable<bool> TryModifyMany<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -244,7 +265,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> TryModifyManyAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -272,7 +293,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<bool> ModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> TryModifyManyAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -300,7 +321,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> TryModifyManyAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -328,7 +349,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async IAsyncEnumerable<bool> ModifyManyAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
+        public virtual async IAsyncEnumerable<bool> TryModifyManyAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, [EnumeratorCancellation] CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -360,7 +381,7 @@ namespace ModelBased.Collections.Generic
         #region Many ignore
 
         /// <inheritdoc/>
-        public virtual bool ModifyManyIgnore<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        public virtual bool TryModifyManyIgnore<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -389,7 +410,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        public virtual async Task<bool> TryModifyManyIgnoreAsync<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -418,7 +439,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> ModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        public virtual async Task<bool> TryModifyManyIgnoreAsync<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -447,7 +468,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        public virtual async Task<bool> TryModifyManyIgnoreAsyncA<TUpdateableModel>(IEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -476,7 +497,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <inheritdoc/>
-        public virtual async Task<bool> ModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
+        public virtual async Task<bool> TryModifyManyIgnoreAsyncA<TUpdateableModel>(IAsyncEnumerable<(TUpdateableModel, TUpdateableModel)> srcWithMods, CancellationToken token = default)
             where TUpdateableModel : IAsyncUpdateableModel<TID>, TModel
         {
             token.ThrowIfCancellationRequested();
@@ -1103,6 +1124,7 @@ namespace ModelBased.Collections.Generic
                 yield return en.Current;
         }
 
+        /// <inheritdoc/>
         public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
         {
             using var en = activeStack.GetEnumerator(token);
