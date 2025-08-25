@@ -1599,7 +1599,17 @@ namespace ModelBased.Collections.Generic
                                                 itemStackPtr = 0;
                                         }
                                         else
+                                        {
                                             itemStackPtr++;
+                                            if (itemStackPtr == icap)
+                                            {
+                                                current = current.NextItem;
+                                                if (current is null)
+                                                    goto ExitFor;
+                                                else
+                                                    itemStackPtr = 0;
+                                            }
+                                        }
 
                                     cache[cachePtr] = current.Stack[itemStackPtr].Model!;
                                 }
@@ -1688,7 +1698,17 @@ namespace ModelBased.Collections.Generic
                                                 itemStackPtr = 0;
                                         }
                                         else
+                                        {
                                             itemStackPtr++;
+                                            if (itemStackPtr == icap)
+                                            {
+                                                current = current.NextItem;
+                                                if (current is null)
+                                                    goto ExitFor;
+                                                else
+                                                    itemStackPtr = 0;
+                                            }
+                                        }
 
                                     cache[cachePtr] = current.Stack[itemStackPtr].Model!;
                                 }
