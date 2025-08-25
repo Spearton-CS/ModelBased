@@ -14,14 +14,21 @@
 That library uses less memory than default .NET collections</Description>
     <RepositoryUrl>https://github.com/Spearton-CS/ModelBased</RepositoryUrl>
     <PackageTags>model;data;pool;csharp;c#;manage;datamodel;crossplatform;windows;linux;mac;</PackageTags>
+    <PackageProjectUrl>https://github.com/Spearton-CS/ModelBased</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageReleaseNotes>First release :D</PackageReleaseNotes>
+    <IncludeSymbols>True</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <IsAotCompatible>True</IsAotCompatible>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <GenerateAssemblyInfo>False</GenerateAssemblyInfo>
+    <IsAotCompatible>True</IsAotCompatible>
   </PropertyGroup>
 
   <ItemGroup>
@@ -31,6 +38,13 @@ That library uses less memory than default .NET collections</Description>
     <EmbeddedResource Remove="Tests\**" />
     <None Remove="Tester\**" />
     <None Remove="Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
