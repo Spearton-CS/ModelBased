@@ -1,11 +1,12 @@
 ﻿using System.Buffers;
 using System.Collections;
-using ModelBased.ComponentModel;
-using System.Runtime.CompilerServices;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 
 namespace ModelBased.Collections.Generic
 {
+    using ComponentModel;
+
     /// <summary>
     /// Pool of active items of <see cref="IModelPool{TModel, TID}"/>
     /// </summary>
@@ -16,13 +17,30 @@ namespace ModelBased.Collections.Generic
         where TID : notnull
         where TModel : notnull, IDataModel<TID>
     {
+        #region Protected
+
+        /// <summary>
+        /// Thread-safe fields. For atomical (++, --) use voids or <see cref="Interlocked"/>
+        /// </summary>
         protected volatile int capacity = 0, count = 0, enumerationCacheSz = 20;
+        /// <summary>
+        /// Count of modifications of <see cref="Item"/>s. Used by <see cref="GetEnumerator()"/> to validate data between yield returns
+        /// </summary>
         protected ulong version = 0;
 
-        protected Item firstItem; //Always must be non-null
+        /// <summary>
+        /// Always must be non-null. Managed reference to first <see cref="Item"/>
+        /// </summary>
+        protected Item firstItem;
+        /// <summary>
+        /// <see cref="SemaphoreSlim"/>, used to lock when we doing some atomical operations
+        /// </summary>
         protected SemaphoreSlim semaphore = new(1, 1);
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         protected PoolActiveStack() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         public PoolActiveStack(int itemCapacity = 20)
         {
             ArgumentOutOfRangeException.ThrowIfNegativeOrZero(itemCapacity, nameof(itemCapacity));
@@ -30,6 +48,7 @@ namespace ModelBased.Collections.Generic
             firstItem = new(itemCapacity);
             capacity = itemCapacity;
         }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
         /// <inheritdoc/>
         public virtual int Capacity => capacity;
@@ -39,16 +58,20 @@ namespace ModelBased.Collections.Generic
         /// Count of items (includes uninitialized), which can store <see cref="PoolActiveStack{TModel, TID}.Item"/>
         /// </summary>
         public virtual int ItemCapacity { get; init; }
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
         protected virtual void IncrementVersion() => Interlocked.Increment(ref version);
         protected virtual void IncrementCount() => Interlocked.Increment(ref count);
         protected virtual void DecrementCount() => Interlocked.Decrement(ref count);
         protected virtual void IncrementCapacity(int inc) => Interlocked.Add(ref capacity, inc);
         protected virtual void DecrementCapacity(int dec) => Interlocked.Add(ref capacity, -dec);
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
+
+        #endregion
 
         #region Add
 
         /// <summary>
-        /// Add or write operation
+        /// Core for <see cref="Add"/>, <see cref="AddAsync"/>
         /// </summary>
         /// <param name="model"></param>
         /// <param name="refs"></param>
@@ -243,7 +266,7 @@ namespace ModelBased.Collections.Generic
         #region Remove
 
         /// <summary>
-        /// Remove operation
+        /// Core for <see cref="Remove(TModel, CancellationToken)"/>, <see cref="RemoveAsync(TModel, CancellationToken)"/>
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -278,7 +301,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <summary>
-        /// Remove operation
+        /// Core for <see cref="RemoveAsync(TID, CancellationToken)"/>, <see cref="RemoveAsync(TID, CancellationToken)"/>
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -569,7 +592,7 @@ namespace ModelBased.Collections.Generic
         #region Ref
 
         /// <summary>
-        /// Write operation
+        /// Core for <see cref="TryRef(TID, CancellationToken)"/>, <see cref="TryRefAsync(TID, CancellationToken)"/>
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -602,7 +625,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <summary>
-        /// Write operation
+        /// Core for <see cref="TryRef(TModel, CancellationToken)"/>, <see cref="TryRefAsync(TModel, CancellationToken)"/>
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -890,7 +913,7 @@ namespace ModelBased.Collections.Generic
         #region Unref
 
         /// <summary>
-        /// Write or remove operation
+        /// Core for <see cref="TryUnref(TID, CancellationToken)"/>, <see cref="TryUnrefAsync(TID, CancellationToken)"/>
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -929,7 +952,7 @@ namespace ModelBased.Collections.Generic
         }
 
         /// <summary>
-        /// Write or remove operation
+        /// Core for <see cref="TryUnref(TModel, CancellationToken)"/>, <see cref="TryUnrefAsync(TModel, CancellationToken)"/>
         /// </summary>
         /// <param name="model"></param>
         /// <param name="token"></param>
@@ -1248,7 +1271,7 @@ namespace ModelBased.Collections.Generic
         #region Searching
 
         /// <summary>
-        /// Read-only operation.
+        /// Core for <see cref="TryGetRefs(TID, CancellationToken)"/>, <see cref="TryGetRefsAsync(TID, CancellationToken)"/>
         /// </summary>
         /// <param name="id"></param>
         /// <param name="token"></param>
@@ -1638,6 +1661,7 @@ namespace ModelBased.Collections.Generic
             }
         }
 
+        /// <inheritdoc/>
         public virtual IEnumerator<TModel> GetEnumerator(CancellationToken token)
         {
             if (count == 0)
@@ -1746,6 +1770,11 @@ namespace ModelBased.Collections.Generic
 
         #region Defragmentation
 
+        /// <summary>
+        /// Core for <see cref="Defragmentation"/>, <see cref="DefragmentationAsync"/>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
         protected virtual int DefragmentationCore(CancellationToken token = default)
         {
             Item? freeItem = firstItem, currentItem;
@@ -1878,19 +1907,26 @@ namespace ModelBased.Collections.Generic
         /// </summary>
         public class Item
         {
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
             protected Item() { }
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
             public Item((int Refs, TModel? Model)[] stack) => Stack = stack;
             public Item(int stackCapacity)
             {
                 ArgumentOutOfRangeException.ThrowIfNegativeOrZero(stackCapacity, nameof(stackCapacity));
                 Stack = new (int, TModel?)[stackCapacity];
             }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
             /// <summary>
             /// Stack of <typeparamref name="TModel"/>s with <see cref="int"/> Refs
             /// </summary>
             public virtual (int Refs, TModel? Model)[] Stack { get; set; }
 
+            /// <summary>
+            /// Thread-safe field, but for atomical (++, --) use voids or <see cref="Interlocked"/>
+            /// </summary>
             protected volatile int count = 0;
             /// <summary>
             /// Count of <typeparamref name="TModel"/>s in <see cref="Stack"/>
@@ -1900,14 +1936,19 @@ namespace ModelBased.Collections.Generic
                 get => count;
                 set => count = value;
             }
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
             public virtual void IncrementCount() => Interlocked.Increment(ref count);
             public virtual void DecrementCount() => Interlocked.Decrement(ref count);
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 
             /// <summary>
             /// Calculates count of free space in <see cref="Stack"/>
             /// </summary>
             public virtual int FreeCount => Stack.Length - Count;
 
+            /// <summary>
+            /// Thread-safe fields for linked-list-like model
+            /// </summary>
             protected volatile Item? prev, next;
             /// <summary>
             /// Next <see cref="Item"/> or null

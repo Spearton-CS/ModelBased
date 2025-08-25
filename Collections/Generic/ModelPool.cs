@@ -18,11 +18,11 @@ namespace ModelBased.Collections.Generic
         where TModel : IDataModel<TModel, TID>
     {
         /// <summary>
-        /// 
+        /// <see cref="IPoolActiveStack{TModel, TID}"/> with rented models
         /// </summary>
         protected IPoolActiveStack<TModel, TID> activeStack = [];
         /// <summary>
-        /// 
+        /// <see cref="IPoolShadowStack{TModel, TID}"/> with returned models
         /// </summary>
         protected IPoolShadowStack<TModel, TID> shadowStack;
         /// <summary>

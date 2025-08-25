@@ -233,7 +233,7 @@ public class PoolTest
             model.ID = i;
             model.Data = $"MODEL_{i}_MOD";
 
-            if (pool.Modify(models[i], model))
+            if (pool.TryModify(models[i], model))
                 Debug.WriteLine($"{i} modified: {models[i].Data}");
             else
                 Debug.WriteLine($"{i} MODIFY UNSUCCESSFULL: {models[i].Data}");
@@ -283,7 +283,7 @@ public class PoolTest
             model.ID = i;
             model.Data = $"MODEL_{i}_MOD";
 
-            if (await pool.ModifyAsync(models[i], model))
+            if (await pool.TryModifyAsync(models[i], model))
                 Debug.WriteLine($"{i} modified: {models[i].Data}");
             else
                 Debug.WriteLine($"{i} MODIFY UNSUCCESSFULL: {models[i].Data}");
