@@ -8,5 +8,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTrademark("ModelBased")]
 [assembly: ComVisible(false)]
 [assembly: Guid("40de2dbe-65ae-498f-a899-1ec1afa65586")]
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("1.0.1.15")]
+[assembly: AssemblyFileVersion("1.0.1.15")]

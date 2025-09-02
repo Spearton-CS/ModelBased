@@ -1,4 +1,6 @@
-﻿namespace ModelBased.Collections.Generic
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace ModelBased.Collections.Generic
 {
     using ModelBased.ComponentModel;
 
@@ -7,7 +9,8 @@
     /// </summary>
     /// <typeparam name="TModel"></typeparam>
     /// <typeparam name="TID"></typeparam>
-    public interface IModelPool<TModel, TID> : IEnumerable<TModel>, IAsyncEnumerable<TModel>
+    public interface IModelPool<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces | DynamicallyAccessedMemberTypes.PublicMethods)] TModel, TID>
+        : IEnumerable<TModel>, IAsyncEnumerable<TModel>
         where TID : notnull
         where TModel : notnull, IDataModel<TModel, TID> //Exactly TModel, TID, bc we need Factory
     {
@@ -491,7 +494,8 @@
     /// <typeparam name="TSelf"></typeparam>
     /// <typeparam name="TModel"></typeparam>
     /// <typeparam name="TID"></typeparam>
-    public interface IModelPool<TSelf, TModel, TID> : IModelPool<TModel, TID>
+    public interface IModelPool<TSelf, [DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces | DynamicallyAccessedMemberTypes.PublicMethods)] TModel, TID>
+        : IModelPool<TModel, TID>
         where TID : notnull
         where TModel : notnull, IDataModel<TModel, TID>
         where TSelf : notnull, IModelPool<TSelf, TModel, TID>

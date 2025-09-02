@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System.Reflection;
+using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 namespace ModelBased.Collections.Generic
@@ -13,7 +15,8 @@ namespace ModelBased.Collections.Generic
     /// <typeparam name="TModel"></typeparam>
     /// <typeparam name="TID"></typeparam>
     [DebuggerDisplay("Count = {Count}, ShadowCount = {ShadowCount}")]
-    public class ModelPool<TModel, TID> : IModelPool<ModelPool<TModel, TID>, TModel, TID>
+    public class ModelPool<[DynamicallyAccessedMembers(DynamicallyAccessedMemberTypes.Interfaces | DynamicallyAccessedMemberTypes.PublicMethods)] TModel, TID>
+        : IModelPool<ModelPool<TModel, TID>, TModel, TID>
         where TID : notnull
         where TModel : IDataModel<TModel, TID>
     {
@@ -30,6 +33,11 @@ namespace ModelBased.Collections.Generic
         /// </summary>
         protected SemaphoreSlim semaphore = new(1, 1);
 
+        /// <summary>
+        /// Flag, indicating that <typeparamref name="TModel"/> implements <see cref="IReusableModel{TSelf, TID}"/>
+        /// </summary>
+        protected Func<TID, TModel?, CancellationToken, TModel>? reusableFactory = null;
+
 #pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider adding the 'required' modifier or declaring as nullable.
         protected ModelPool() { }
@@ -38,6 +46,27 @@ namespace ModelBased.Collections.Generic
 #pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
         {
             shadowStack = new PoolShadowStack<TModel, TID>(shadowStackCapacity);
+            try
+            {
+                Type generic = typeof(TModel), id = typeof(TID), contract = typeof(IReusableModel<,>);
+                foreach (Type i in generic.GetInterfaces())
+                    if (i.IsGenericType && i.GetGenericTypeDefinition() == contract)
+                    {
+                        Type[] tParams = i.GetGenericArguments();
+                        if (tParams[0].IsAssignableTo(generic)
+                            && tParams[1] == id)
+                        {
+                            reusableFactory = i.GetMethod("Factory", BindingFlags.Static | BindingFlags.Public,
+                                [id, generic, typeof(CancellationToken)])
+                                ?.CreateDelegate<Func<TID, TModel?, CancellationToken, TModel>>();
+                            break;
+                        }
+                    }
+            }
+            catch
+            {
+                reusableFactory = null;
+            }
         }
 
         #region Properties
@@ -543,7 +572,10 @@ namespace ModelBased.Collections.Generic
                     return (model, activeStack.Add(model, 1, token));
                 else
                 {
-                    model = TModel.Factory(id, token);
+                    if (reusableFactory is not null)
+                        model = reusableFactory(id, shadowStack.TryPop(token), token);
+                    else
+                        model = TModel.Factory(id, token);
                     return (model, activeStack.Add(model, 1, token));
                 }
             }

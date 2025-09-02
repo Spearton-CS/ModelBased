@@ -21,7 +21,7 @@ namespace ModelBased.Collections.Generic
         /// <summary>
         /// Array of <typeparamref name="TModel"/>, which have Age ('Old' item). This an index, which increases at each <see cref="models"/> modification
         /// </summary>
-        protected (int Old, TModel Model)[]? models = null;
+        protected (int Old, TModel? Model)[]? models = null;
         /// <summary>
         /// Count of modifications of <see cref="models"/>. Used by <see cref="GetEnumerator()"/> to validate data between yield returns
         /// </summary>
@@ -254,7 +254,7 @@ namespace ModelBased.Collections.Generic
         #region Pop
 
         /// <summary>
-        /// Core for <see cref="TryPop"/>, <see cref="TryPopAsync"/>
+        /// Core for <see cref="TryPop(TID, CancellationToken)"/>, <see cref="TryPopAsync(TID, CancellationToken)"/>
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
@@ -386,6 +386,69 @@ namespace ModelBased.Collections.Generic
                     semaphore.Release();
                 }
             }
+        }
+
+        #endregion
+
+        #region Pop no specific ID
+
+        /// <summary>
+        /// Core for <see cref="TryPop(CancellationToken)"/>, <see cref="TryPopAsync(CancellationToken)"/>
+        /// </summary>
+        /// <returns></returns>
+        protected virtual TModel? PopCore()
+        {
+            (int Old, TModel? Model) oldest = (-1, default);
+            for (int i = 0; i < models!.Length; i++)
+            {
+                var model = models[i];
+                if (model.Old > oldest.Old)
+                    oldest = model;
+            }
+            return oldest.Old >= 0
+                ? oldest.Model
+                : default;
+        }
+
+        /// <inheritdoc/>
+        public virtual TModel? TryPop(CancellationToken token = default)
+        {
+            if (models is not null && models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                semaphore.Wait(token);
+                try
+                {
+                    return PopCore();
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+            else
+                return default;
+
+        }
+        
+        /// <inheritdoc/>
+        public virtual async Task<TModel?> TryPopAsync(CancellationToken token = default)
+        {
+            if (models is not null && models.Length > 0)
+            {
+                token.ThrowIfCancellationRequested();
+                await semaphore.WaitAsync(token);
+                try
+                {
+                    return PopCore();
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }
+            else
+                return default;
         }
 
         #endregion

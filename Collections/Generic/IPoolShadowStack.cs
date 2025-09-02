@@ -133,6 +133,23 @@ namespace ModelBased.Collections.Generic
 
         #endregion
 
+        #region Pop no specific ID
+
+        /// <summary>
+        /// Pops oldest <typeparamref name="TModel"/>
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
+        TModel? TryPop(CancellationToken token = default);
+        /// <summary>
+        /// Pops oldest <typeparamref name="TModel"/> async
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns>Poped out <typeparamref name="TModel"/> or null (default)</returns>
+        Task<TModel?> TryPopAsync(CancellationToken token = default);
+
+        #endregion
+
         #region Clear
 
         /// <summary>
