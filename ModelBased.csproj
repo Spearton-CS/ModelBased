@@ -16,7 +16,7 @@ That library uses less memory than default .NET collections</Description>
     <PackageTags>model;data;pool;csharp;c#;manage;datamodel;crossplatform;windows;linux;mac;</PackageTags>
     <PackageProjectUrl>https://github.com/Spearton-CS/ModelBased</PackageProjectUrl>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageReleaseNotes>First release :D</PackageReleaseNotes>
+    <PackageReleaseNotes>Reusable models support for ModelPool. (can be danger when using with AOT, if it will 100% crush some AOT settings - will be marked.)</PackageReleaseNotes>
     <IncludeSymbols>True</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <Copyright>https://github.com/Spearton-CS</Copyright>
