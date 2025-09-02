@@ -26,5 +26,13 @@
 ---
 ## Where can download?
 
-* [Nuget](https://www.nuget.org/packages/ModelBased/1.0.0#readme-body-tab "ModelBased")
+* [Nuget](https://www.nuget.org/packages/ModelBased#readme-body-tab "ModelBased")
 * [Github](https://github.com/Spearton-CS/ModelBased "ModelBased")
+
+### How versions named?
+
+A.B.C.D format, where:
+- A is count of big updates (e.g: integration with new framework)
+- B is count of performance or .NET release-depended updates
+- C is count of small updates on this big update
+- D just sth around count of builds or tests.
